@@ -1,64 +1,63 @@
-# compass
+# @sailkit/compass
 
-Headless navigation state for trees and lists. Handles the hard parts: DFS traversal, sibling navigation, wrap-around, parent/child movement.
+Headless navigation state for lists and trees. Framework-agnostic state machine that handles DFS traversal, sibling navigation, wrap-around, and parent/child movement.
 
-## Core Types
-
-```typescript
-// Single recursive node type - consumer defines T
-interface NavNode<T> {
-  data: T;
-  children?: NavNode<T>[];
-}
-
-// Navigator interface
-interface Navigator<T> {
-  root: NavNode<T>[];
-  current: NavNode<T> | null;
-  currentIndex: number;        // flat index in DFS order
-  next(): void;
-  prev(): void;
-  nextSibling(): void;
-  prevSibling(): void;
-  parent(): void;
-  firstChild(): void;
-  goTo(index: number): void;
-  reset(): void;
-}
-
-function createNavigator<T>(config: {
-  nodes: NavNode<T>[];
-  wrap?: boolean;           // default true
-  leavesOnly?: boolean;     // default false - if true, skip branch nodes
-  onChange?: (prev: NavNode<T> | null, next: NavNode<T> | null, index: number) => void;
-}): Navigator<T>;
-```
-
-## Traversal
-
-DFS pre-order (top-to-bottom as rendered). `leavesOnly` controls whether branch nodes are navigation stops.
+## Quick Start
 
 ```typescript
-const nodes = [
-  { data: 'CONCEPTS', children: [
-    { data: 'Context' },
-    { data: 'Prompting' },
-  ]},
-  { data: 'FAILURE MODES', children: [
-    { data: 'Hallucination' },
-  ]},
+import { createNavigator, getNeighbors, flattenSlugs } from '@sailkit/compass';
+
+// Flat list
+const nav = createNavigator({ items: ['a', 'b', 'c'] });
+nav.next();
+console.log(nav.current); // 'b'
+
+// Tree structure (forest - multiple roots supported)
+const items = [
+  { slug: 'part-1', children: ['1.1', '1.2'] },
+  { slug: 'part-2', children: ['2.1'] },
 ];
+const nav = createNavigator({ items });
 
-// leavesOnly: false (default)
-// → CONCEPTS, Context, Prompting, FAILURE MODES, Hallucination
+// DFS order: part-1 → 1.1 → 1.2 → part-2 → 2.1
+nav.next();       // 'part-1' → '1.1'
+nav.next();       // '1.1' → '1.2'
+nav.parent();     // '1.2' → 'part-1'
+nav.firstChild(); // 'part-1' → '1.1'
+nav.nextSibling(); // '1.1' → '1.2'
 
-// leavesOnly: true
-// → Context, Prompting, Hallucination
+// Build-time (SSG) - stateless helpers
+const { prev, next } = getNeighbors(items, '1.1');
+// prev: 'part-1', next: '1.2'
+
+const slugs = flattenSlugs(items);
+// ['part-1', '1.1', '1.2', 'part-2', '2.1']
 ```
 
-## Why compass?
+## Options
 
-- Pure state management, no DOM dependencies
-- Consumer decides what `T` is (strings, objects, DOM elements, etc.)
-- Supports arbitrary nesting depth
-- Portable to any language/runtime
+```typescript
+createNavigator({
+  items,
+  wrap: true,       // Wrap at ends (default: true)
+  leavesOnly: true, // Skip branch nodes, only visit leaves
+  onChange: (prev, next, index) => { /* ... */ }
+});
+```
+
+## API
+
+See [`src/types.ts`](./src/types.ts) for full type definitions.
+
+**Navigator methods:** `next()`, `prev()`, `nextSibling()`, `prevSibling()`, `parent()`, `firstChild()`, `goTo(index)`, `goToSlug(slug)`, `reset()`
+
+**Navigator properties:** `current`, `currentItem`, `currentIndex`, `count`, `root`
+
+**Helpers:** `getNeighbors(items, slug, options?)`, `flattenSlugs(items, leavesOnly?)`, `isBranch(item)`, `getSlug(item)`
+
+## Why Compass?
+
+- **Pure state** - no DOM, no framework dependencies
+- **Portable** - works in browser, Node, or any JS runtime
+- **Tree-aware** - handles nested structures natively
+- **Build-time friendly** - stateless helpers for SSG
