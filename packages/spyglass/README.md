@@ -1,273 +1,276 @@
 # @sailkit/spyglass
 
-Headless fuzzy finder for site search and sidebar filtering.
+Site search UI with command palette and sidebar filtering.
 
-No UI opinions. Just the matching logic and state management. Bring your own input field and results list.
+Spyglass is a **UI layer**, not a search engine. It provides the modal, input, results rendering, and keyboard navigation. Bring your own fuzzy search library (Fuse.js, MiniSearch, Pagefind, etc.).
 
 ```typescript
-import { createFinder } from '@sailkit/spyglass';
+import { createSpyglass } from '@sailkit/spyglass';
+import Fuse from 'fuse.js';
 
-const finder = createFinder({
-  items: [
-    { id: 'intro', title: 'Introduction', keywords: ['start', 'begin'] },
-    { id: 'install', title: 'Installation', keywords: ['setup', 'npm'] },
-    { id: 'api', title: 'API Reference', keywords: ['docs', 'functions'] },
-  ]
+const fuse = new Fuse(items, { keys: ['title', 'description'] });
+
+const spyglass = createSpyglass({
+  engine: 'fuse',
+  fuse,
+  hotkey: 'mod+k',
 });
 
-finder.search('instal');
-// [{ id: 'install', title: 'Installation', score: 0.92 }]
-
-finder.search('');
-// [] - empty query returns nothing (or all, configurable)
+spyglass.on('select', (item) => {
+  window.location.href = item.url;
+});
 ```
 
-## Why Headless?
+## Architecture
 
-Every site has different UI requirements:
+```
+┌─────────────────────────────────────────┐
+│              Spyglass UI                │
+│  (modal, input, results, highlighting)  │
+└─────────────────┬───────────────────────┘
+                  │
+┌─────────────────▼───────────────────────┐
+│           Adapter Layer                 │
+│  (normalize input/output for engines)   │
+└─────────────────┬───────────────────────┘
+                  │
+┌─────────────────▼───────────────────────┐
+│         Search Engine (BYO)             │
+│  Fuse.js │ MiniSearch │ Pagefind │ etc  │
+└─────────────────────────────────────────┘
+```
 
-- Modal command palette (⌘K)
-- Inline sidebar filter
-- Search page with URL state
-- Autocomplete dropdown
+## Why Not Build the Search Engine?
 
-Spyglass handles the hard part (fuzzy matching, ranking, keyboard selection state) while you control presentation.
+Search engines already exist and are well-tested:
+
+- **Fuse.js** — Fuzzy matching, client-side, zero config
+- **MiniSearch** — Full-text search, client-side, fast indexing
+- **Pagefind** — Static site search, WASM-powered, scales to huge sites
+
+What doesn't exist: a consistent UI layer that works with any of them.
+
+## What Spyglass Provides
+
+### Command Palette
+
+Press `⌘K` (or custom hotkey) to open a search modal:
+
+```typescript
+const spyglass = createSpyglass({
+  hotkey: 'mod+k',
+  placeholder: 'Search docs...',
+});
+```
+
+### Sidebar Filter
+
+Inline mode for filtering navigation:
+
+```typescript
+const spyglass = createSpyglass({
+  mode: 'inline',
+  container: '#sidebar-filter',
+});
+```
+
+### Keyboard Navigation
+
+- `↑`/`↓` or `j`/`k` — Move selection
+- `Enter` — Navigate to selected
+- `Escape` — Close palette
+
+### Result Highlighting
+
+Get match positions to highlight in your UI:
+
+```typescript
+spyglass.on('results', (results) => {
+  results.forEach(({ item, matches }) => {
+    // matches: [{ start: 0, end: 4 }]
+  });
+});
+```
+
+## Supported Engines
+
+| Engine | Adapter | Notes |
+|--------|---------|-------|
+| Fuse.js | `fuse` | Fuzzy matching, good defaults |
+| MiniSearch | `minisearch` | Full-text, typo tolerance |
+| Pagefind | `pagefind` | Static sites, WASM |
+| Custom | `custom` | Provide your own |
+
+### Using Fuse.js
+
+```typescript
+import Fuse from 'fuse.js';
+import { createSpyglass } from '@sailkit/spyglass';
+
+const fuse = new Fuse(items, {
+  keys: ['title', 'description', 'keywords'],
+  threshold: 0.3,
+});
+
+const spyglass = createSpyglass({
+  engine: 'fuse',
+  fuse,
+});
+```
+
+### Using MiniSearch
+
+```typescript
+import MiniSearch from 'minisearch';
+import { createSpyglass } from '@sailkit/spyglass';
+
+const miniSearch = new MiniSearch({
+  fields: ['title', 'description'],
+  storeFields: ['title', 'url'],
+});
+miniSearch.addAll(items);
+
+const spyglass = createSpyglass({
+  engine: 'minisearch',
+  miniSearch,
+});
+```
+
+### Using Pagefind
+
+```typescript
+import { createSpyglass } from '@sailkit/spyglass';
+
+const spyglass = createSpyglass({
+  engine: 'pagefind',
+  pagefindPath: '/pagefind/pagefind.js',
+});
+```
+
+### Custom Engine
+
+```typescript
+const spyglass = createSpyglass({
+  engine: 'custom',
+  search: async (query) => {
+    // Your search logic
+    return results.map(r => ({
+      id: r.id,
+      title: r.title,
+      url: r.url,
+      matches: [],
+    }));
+  },
+});
+```
 
 ## Integration with Sailkit
 
-Designed to work with other Sailkit packages:
-
 ### With Compass
 
-Filter navigation items from your Compass structure:
+Build searchable items from navigation structure:
 
 ```typescript
 import { flattenSlugs } from '@sailkit/compass';
-import { createFinder } from '@sailkit/spyglass';
 
 const slugs = flattenSlugs(navigation, true);
-const finder = createFinder({
-  items: slugs.map(slug => ({
-    id: slug,
-    title: getTitle(slug),
-  }))
-});
+const items = slugs.map(slug => ({
+  id: slug,
+  title: getTitle(slug),
+  url: `/docs/${slug}/`,
+}));
 ```
 
 ### With Teleport
 
-Teleport emits `teleport:open-finder` when user presses `t`. Hook it up:
+Teleport emits `teleport:open-finder` on `t` press:
 
 ```typescript
 document.addEventListener('teleport:open-finder', () => {
-  openFinderModal(); // your UI
+  spyglass.open();
 });
-```
-
-Use Spyglass selection state with keyboard nav:
-
-```typescript
-const finder = createFinder({ items });
-
-// j/k in finder modal
-finder.selectNext();
-finder.selectPrev();
-
-// Enter to navigate
-const selected = finder.getSelected();
-if (selected) {
-  window.location.href = `/docs/${selected.id}/`;
-}
-```
-
-## Features
-
-### Fuzzy Matching
-
-Matches characters in order, not necessarily adjacent:
-
-```typescript
-finder.search('api');
-// Matches: "API Reference", "GraphQL API", "REST API Guide"
-
-finder.search('gql');
-// Matches: "GraphQL API" (g-q-l found in sequence)
-```
-
-### Ranking
-
-Results ranked by:
-
-1. Exact match (highest)
-2. Prefix match
-3. Word boundary match
-4. Fuzzy match quality
-5. Keyword matches
-
-### Keyword Boosting
-
-Add synonyms and related terms:
-
-```typescript
-const finder = createFinder({
-  items: [
-    {
-      id: 'auth',
-      title: 'Authentication',
-      keywords: ['login', 'signin', 'oauth', 'jwt', 'session']
-    }
-  ]
-});
-
-finder.search('login');
-// Returns Authentication even though "login" isn't in title
-```
-
-### Selection State
-
-Built-in selection management:
-
-```typescript
-const finder = createFinder({ items });
-
-finder.search('api');
-finder.selectNext();     // Select first result
-finder.selectNext();     // Select second
-finder.selectPrev();     // Back to first
-finder.getSelected();    // Get selected item
-finder.clearSelection(); // Deselect
-```
-
-### Highlighting
-
-Get match positions for highlighting:
-
-```typescript
-const results = finder.search('inst');
-// [{
-//   id: 'install',
-//   title: 'Installation',
-//   score: 0.92,
-//   matches: [{ start: 0, end: 4 }]  // "Inst" in "Installation"
-// }]
-```
-
-Render with highlights:
-
-```typescript
-function highlightMatches(title: string, matches: Match[]) {
-  // Your highlighting logic
-}
 ```
 
 ## Configuration
 
 ```typescript
-const finder = createFinder({
-  // Items to search
-  items: [...],
+interface SpyglassConfig {
+  // Engine selection
+  engine: 'fuse' | 'minisearch' | 'pagefind' | 'custom';
 
-  // Minimum score to include (0-1)
-  threshold: 0.3,
+  // Engine instances (depending on engine choice)
+  fuse?: Fuse<any>;
+  miniSearch?: MiniSearch;
+  pagefindPath?: string;
+  search?: (query: string) => Promise<SearchResult[]>;
 
-  // Maximum results
-  limit: 10,
+  // UI options
+  mode?: 'modal' | 'inline';
+  container?: string | HTMLElement;
+  hotkey?: string;
+  placeholder?: string;
+  maxResults?: number;
 
-  // Return all items on empty query
-  showAllOnEmpty: false,
-
-  // Case sensitive matching
-  caseSensitive: false,
-
-  // Custom scoring weights
-  weights: {
-    exact: 1.0,
-    prefix: 0.9,
-    wordBoundary: 0.8,
-    fuzzy: 0.6,
-    keyword: 0.7,
-  }
-});
+  // Behavior
+  autoFocus?: boolean;
+  closeOnSelect?: boolean;
+  closeOnEscape?: boolean;
+}
 ```
 
 ## API
 
-### `createFinder(config: FinderConfig): Finder`
+### `createSpyglass(config): Spyglass`
 
-Create a finder instance.
+Create a spyglass instance.
 
-### `finder.search(query: string): SearchResult[]`
+### `spyglass.open(): void`
 
-Search items and return ranked results.
+Open the command palette (modal mode).
 
-### `finder.setItems(items: FinderItem[]): void`
+### `spyglass.close(): void`
 
-Update searchable items (useful for dynamic content).
+Close the command palette.
 
-### `finder.selectNext(): void`
+### `spyglass.toggle(): void`
 
-Move selection to next result.
+Toggle open/closed state.
 
-### `finder.selectPrev(): void`
+### `spyglass.search(query: string): Promise<void>`
 
-Move selection to previous result.
+Trigger a search programmatically.
 
-### `finder.getSelected(): SearchResult | null`
+### `spyglass.on(event, callback): void`
 
-Get currently selected result.
+Subscribe to events:
 
-### `finder.clearSelection(): void`
+- `open` — Palette opened
+- `close` — Palette closed
+- `search` — Search executed
+- `results` — Results received
+- `select` — Item selected
 
-Clear selection state.
+### `spyglass.destroy(): void`
 
-### `finder.getSelectedIndex(): number`
-
-Get index of selected result (-1 if none).
+Clean up event listeners and DOM.
 
 ## Types
 
 ```typescript
-interface FinderItem {
+interface SearchResult {
   id: string;
   title: string;
-  keywords?: string[];
-  description?: string;
   url?: string;
-  meta?: Record<string, unknown>;
-}
-
-interface SearchResult extends FinderItem {
-  score: number;
-  matches: Match[];
+  description?: string;
+  matches?: Match[];
 }
 
 interface Match {
-  field: 'title' | 'keywords' | 'description';
+  field: string;
   start: number;
   end: number;
 }
-
-interface FinderConfig {
-  items: FinderItem[];
-  threshold?: number;
-  limit?: number;
-  showAllOnEmpty?: boolean;
-  caseSensitive?: boolean;
-  weights?: Partial<ScoringWeights>;
-}
 ```
-
-## Use Cases
-
-- **Command palette**: ⌘K to open, fuzzy search all pages
-- **Sidebar filter**: Type to filter navigation tree
-- **Search page**: Full search with URL state
-- **Autocomplete**: Dropdown suggestions as you type
-- **Jump to definition**: IDE-style file/symbol navigation
-
-## Philosophy
-
-Search UI varies wildly. Search logic doesn't. Spyglass gives you the algorithm without the opinions.
 
 ## Status
 
