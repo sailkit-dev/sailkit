@@ -1,6 +1,8 @@
 # @sailkit/compass
 
-A cursor for lists. Move forward, backward, or through nested items.
+Headless navigation cursor for ordered and nested content.
+
+Designed for documentation sites, learning paths, keyboard-driven navigation, terminal UIs, and anywhere you need to traverse structured content without coupling to a framework or DOM.
 
 ```typescript
 const nav = createNavigator({ items: ['a', 'b', 'c'] });
