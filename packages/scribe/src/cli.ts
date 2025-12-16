@@ -6,9 +6,22 @@
 import { readFile, readdir, stat } from 'node:fs/promises'
 import { join, extname } from 'node:path'
 import { cpus } from 'node:os'
+import { Command } from 'commander'
 import logUpdate from 'log-update'
 import { parseMarkdown, filterTestableBlocks, type CodeBlock } from './parser.js'
 import { runBlock, type RunResult } from './runner.js'
+
+// IO interface for testability
+export interface IO {
+  write(text: string): void
+  writeError(text: string): void
+}
+
+// Real IO implementation
+const realIO: IO = {
+  write: (text) => process.stdout.write(text),
+  writeError: (text) => process.stderr.write(text)
+}
 
 // Detect interactive TTY vs CI/piped output
 const isTTY = process.stdout.isTTY ?? false
@@ -22,6 +35,11 @@ let spinnerIndex = 0
 interface RunningTest {
   label: string
   index: number
+}
+
+export interface RunOptions {
+  targetPath: string
+  concurrency: number
 }
 
 async function findMarkdownFiles(dir: string): Promise<string[]> {
@@ -45,29 +63,6 @@ async function findMarkdownFiles(dir: string): Promise<string[]> {
   return files
 }
 
-function parseArgs(): { targetDir: string; concurrency: number } {
-  const args = process.argv.slice(2)
-  let targetDir = process.cwd()
-  let concurrency = cpus().length
-
-  for (let i = 0; i < args.length; i++) {
-    const arg = args[i]
-    if (arg === '--runInBand' || arg === '-i') {
-      concurrency = 1
-    } else if (arg === '--parallel' || arg === '-j') {
-      const next = args[i + 1]
-      if (next && !next.startsWith('-')) {
-        concurrency = parseInt(next, 10) || cpus().length
-        i++
-      }
-    } else if (!arg.startsWith('-')) {
-      targetDir = arg
-    }
-  }
-
-  return { targetDir, concurrency }
-}
-
 function cleanErrorMessage(error: string): string {
   return error
     .replace(/file:\/\/[^\s]+\[eval\d*\]:\d+/g, '')
@@ -88,12 +83,29 @@ function renderRunningTests(running: RunningTest[]): string {
   return lines.join('\n')
 }
 
-async function main() {
-  const { targetDir, concurrency } = parseArgs()
+export async function run(options: RunOptions, io: IO = realIO): Promise<{ passed: number; failed: number }> {
+  const { targetPath, concurrency } = options
 
-  console.log('Scanning for markdown files...')
-  const mdFiles = await findMarkdownFiles(targetDir)
-  console.log(`Found ${mdFiles.length} markdown file(s) (${concurrency} workers)\n`)
+  // Determine if target is file or directory
+  const targetStat = await stat(targetPath).catch(() => null)
+  if (!targetStat) {
+    io.writeError(`Error: Path not found: ${targetPath}\n`)
+    return { passed: 0, failed: 1 }
+  }
+
+  let mdFiles: string[]
+  let baseDir: string
+
+  if (targetStat.isFile()) {
+    mdFiles = [targetPath]
+    baseDir = targetPath.includes('/') ? targetPath.substring(0, targetPath.lastIndexOf('/')) : '.'
+  } else {
+    io.write('Scanning for markdown files...\n')
+    mdFiles = await findMarkdownFiles(targetPath)
+    baseDir = targetPath
+  }
+
+  io.write(`Found ${mdFiles.length} markdown file(s) (${concurrency} workers)\n\n`)
 
   // Collect all blocks
   const allBlocks: { block: CodeBlock; shortFile: string }[] = []
@@ -101,7 +113,11 @@ async function main() {
   for (const file of mdFiles) {
     const content = await readFile(file, 'utf-8')
     const blocks = filterTestableBlocks(parseMarkdown(content, file))
-    const shortFile = file.replace(targetDir, '').replace(/^\//, '')
+    // Get relative path for display
+    let shortFile = file
+    if (baseDir !== '.' && file.startsWith(baseDir)) {
+      shortFile = file.slice(baseDir.length).replace(/^\//, '')
+    }
 
     for (const block of blocks) {
       allBlocks.push({ block, shortFile })
@@ -109,8 +125,8 @@ async function main() {
   }
 
   if (allBlocks.length === 0) {
-    console.log('No testable code blocks found.')
-    return
+    io.write('No testable code blocks found.\n')
+    return { passed: 0, failed: 0 }
   }
 
   // Track state
@@ -133,21 +149,19 @@ async function main() {
   // Helper to print a completed test (goes into scrollback)
   function printCompleted(label: string, success: boolean, error?: string) {
     if (useInteractiveOutput) {
-      // Clear the running section, print result, then redraw running section
       logUpdate.clear()
     }
 
     if (success) {
-      console.log(`\x1b[32m✓\x1b[0m ${label}`)
+      io.write(`\x1b[32m✓\x1b[0m ${label}\n`)
     } else {
-      console.log(`\x1b[31m✗\x1b[0m ${label}`)
+      io.write(`\x1b[31m✗\x1b[0m ${label}\n`)
       if (error) {
-        console.log(`  \x1b[90m${error}\x1b[0m`)
+        io.write(`  \x1b[90m${error}\x1b[0m\n`)
       }
     }
 
     if (useInteractiveOutput) {
-      // Redraw running tests at bottom
       const running = Array.from(runningTests.values())
       if (running.length > 0) {
         logUpdate(renderRunningTests(running))
@@ -165,7 +179,6 @@ async function main() {
       const { shortFile, block } = allBlocks[index]
       const label = `${shortFile}:${block.line}`
 
-      // Mark as running
       runningTests.set(index, { label, index })
 
       if (useInteractiveOutput) {
@@ -175,7 +188,6 @@ async function main() {
       const result = await runBlock(block)
       results[index] = result
 
-      // Remove from running
       runningTests.delete(index)
 
       const cleanError = result.error ? cleanErrorMessage(result.error) : undefined
@@ -196,7 +208,6 @@ async function main() {
   )
   await Promise.all(workers)
 
-  // Cleanup
   if (animationInterval) {
     clearInterval(animationInterval)
   }
@@ -205,16 +216,44 @@ async function main() {
     logUpdate.clear()
   }
 
-  console.log()
+  io.write('\n')
   const color = failed > 0 ? '\x1b[31m' : '\x1b[32m'
-  console.log(`${color}Results: ${passed}/${allBlocks.length} passed\x1b[0m`)
+  io.write(`${color}Results: ${passed}/${allBlocks.length} passed\x1b[0m\n`)
+
+  return { passed, failed }
+}
+
+// CLI entry point
+const program = new Command()
+  .name('scribe')
+  .description('Test code fences from markdown files')
+  .argument('<path>', 'File or directory to test')
+  .option('-i, --runInBand', 'Run tests sequentially (no parallelism)')
+  .option('-j, --parallel <n>', 'Set number of parallel workers', String(cpus().length))
+
+async function main() {
+  program.parse()
+
+  const targetPath = program.args[0]
+  const opts = program.opts()
+
+  let concurrency = parseInt(opts.parallel, 10) || cpus().length
+  if (opts.runInBand) {
+    concurrency = 1
+  }
+
+  const { failed } = await run({ targetPath, concurrency })
 
   if (failed > 0) {
     process.exit(1)
   }
 }
 
-main().catch((err) => {
-  console.error('Scribe error:', err.message)
-  process.exit(1)
-})
+// Only run when executed directly, not when imported for testing
+const isMainModule = import.meta.url === `file://${process.argv[1]}`
+if (isMainModule) {
+  main().catch((err) => {
+    console.error('Scribe error:', err.message)
+    process.exit(1)
+  })
+}

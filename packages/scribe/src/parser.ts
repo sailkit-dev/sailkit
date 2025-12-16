@@ -7,9 +7,12 @@ export interface CodeBlock {
   code: string
   file: string
   line: number
+  meta?: string
 }
 
-const CODE_FENCE_REGEX = /^```(\w*)\n([\s\S]*?)^```/gm
+// Matches code fences with optional info string (e.g., ```javascript scribe)
+// Captures: 1=language, 2=rest of info line (may contain "scribe" marker), 3=code
+const CODE_FENCE_REGEX = /^```(\w*)([^\n]*)\n([\s\S]*?)^```/gm
 
 export function parseMarkdown(content: string, filePath: string): CodeBlock[] {
   const blocks: CodeBlock[] = []
@@ -17,7 +20,8 @@ export function parseMarkdown(content: string, filePath: string): CodeBlock[] {
 
   while ((match = CODE_FENCE_REGEX.exec(content)) !== null) {
     const language = match[1] || 'text'
-    const code = match[2]
+    const infoString = match[2]?.trim() || ''
+    const code = match[3]
 
     // Calculate line number
     const beforeMatch = content.slice(0, match.index)
@@ -27,7 +31,8 @@ export function parseMarkdown(content: string, filePath: string): CodeBlock[] {
       language,
       code,
       file: filePath,
-      line
+      line,
+      meta: infoString
     })
   }
 
@@ -36,5 +41,8 @@ export function parseMarkdown(content: string, filePath: string): CodeBlock[] {
 
 export function filterTestableBlocks(blocks: CodeBlock[]): CodeBlock[] {
   const testableLanguages = ['typescript', 'ts', 'javascript', 'js']
-  return blocks.filter(block => testableLanguages.includes(block.language.toLowerCase()))
+  return blocks.filter(block =>
+    testableLanguages.includes(block.language.toLowerCase()) &&
+    block.meta?.includes('scribe')
+  )
 }
