@@ -33,7 +33,7 @@ export interface CreateTeleportConfig {
   bindings?: KeyBindings;
   /** Ignore keystrokes when typing (default: true) */
   ignoreWhenTyping?: boolean;
-  /** What to do when navigation keys pressed while sidebar hidden (default: 'ignore' scrolls content, Enter does nothing) */
+  /** What to do when navigation keys pressed while sidebar hidden (default: 'ignore' - arrows scroll natively, j/k/Enter do nothing) */
   whenHidden?: WhenHiddenBehavior;
   /** Callback when item is selected (Enter pressed) */
   onSelect?: (element: HTMLElement, slug: string) => void;
@@ -139,19 +139,32 @@ export function createTeleport(config: CreateTeleportConfig): TeleportInstance {
   }
 
   /**
-   * Handle navigation action with sidebar visibility awareness
+   * Check if the event is an arrow key
    */
-  function handleNavigationAction(action: () => void, direction?: 'up' | 'down'): void {
+  function isArrowKey(event: KeyboardEvent): boolean {
+    return ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key);
+  }
+
+  /**
+   * Handle navigation action with sidebar visibility awareness.
+   * Returns false if the event should pass through (not preventDefault).
+   */
+  function handleNavigationAction(event: KeyboardEvent, action: () => void): boolean {
     if (isSidebarVisible()) {
       action();
+      return true; // handled, preventDefault
     } else if (whenHidden === 'show-sidebar') {
       // Show sidebar first, then navigate
       document.dispatchEvent(new CustomEvent('teleport:toggle-sidebar'));
       // Small delay to let sidebar animate open
       setTimeout(action, 50);
-    } else if (direction) {
-      // 'ignore' behavior: scroll content instead (smaller than Ctrl+D/U)
-      scrollElement(window, getViewportHeight() / 4, direction);
+      return true; // handled, preventDefault
+    } else {
+      // 'ignore' behavior: let arrows pass through for native scroll, j/k do nothing
+      if (isArrowKey(event)) {
+        return false; // don't preventDefault, let native scroll happen
+      }
+      return true; // j/k do nothing but still preventDefault
     }
   }
 
@@ -216,15 +229,19 @@ export function createTeleport(config: CreateTeleportConfig): TeleportInstance {
   const keyHandler = createKeyboardHandler({
     bindings: mergedBindings,
     ignoreWhenTyping,
-    onDown: () => handleNavigationAction(() => {
+    onDown: (event) => handleNavigationAction(event, () => {
       navigator?.next();
-    }, 'down'),
-    onUp: () => handleNavigationAction(() => {
+    }),
+    onUp: (event) => handleNavigationAction(event, () => {
       navigator?.prev();
-    }, 'up'),
-    onScrollDown: () => scrollElement(window, getViewportHeight() / 2, 'down'),
-    onScrollUp: () => scrollElement(window, getViewportHeight() / 2, 'up'),
-    onSelect: () => handleNavigationAction(() => {
+    }),
+    onScrollDown: () => {
+      scrollElement(window, getViewportHeight() / 2, 'down');
+    },
+    onScrollUp: () => {
+      scrollElement(window, getViewportHeight() / 2, 'up');
+    },
+    onSelect: (event) => handleNavigationAction(event, () => {
       if (!navigator) return;
       const el = elements[navigator.currentIndex];
       const slug = slugs[navigator.currentIndex];
@@ -263,10 +280,10 @@ export function createTeleport(config: CreateTeleportConfig): TeleportInstance {
       }
     },
     onToggleSidebar: onToggleSidebar
-      ? onToggleSidebar
+      ? () => onToggleSidebar()
       : () => document.dispatchEvent(new CustomEvent('teleport:toggle-sidebar')),
     onOpenFinder: onOpenFinder
-      ? onOpenFinder
+      ? () => onOpenFinder()
       : () => document.dispatchEvent(new CustomEvent('teleport:open-finder')),
   });
 

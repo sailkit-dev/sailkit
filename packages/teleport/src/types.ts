@@ -39,19 +39,25 @@ export interface ParsedKey {
 }
 
 /**
+ * Callback that receives the keyboard event.
+ * Return true to preventDefault, false to let the event pass through.
+ */
+export type KeyCallback = (event: KeyboardEvent) => boolean | void;
+
+/**
  * Keyboard handler configuration
  */
 export interface KeyboardHandlerConfig {
   bindings?: KeyBindings;
-  onDown?: () => void;
-  onUp?: () => void;
-  onLeft?: () => void;
-  onRight?: () => void;
-  onScrollDown?: () => void;
-  onScrollUp?: () => void;
-  onSelect?: () => void;
-  onToggleSidebar?: () => void;
-  onOpenFinder?: () => void;
+  onDown?: KeyCallback;
+  onUp?: KeyCallback;
+  onLeft?: KeyCallback;
+  onRight?: KeyCallback;
+  onScrollDown?: KeyCallback;
+  onScrollUp?: KeyCallback;
+  onSelect?: KeyCallback;
+  onToggleSidebar?: KeyCallback;
+  onOpenFinder?: KeyCallback;
   /** Ignore keystrokes when typing in input/textarea (default: true) */
   ignoreWhenTyping?: boolean;
 }

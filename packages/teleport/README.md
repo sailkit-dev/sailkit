@@ -117,14 +117,19 @@ import Teleport from '@bearing-dev/teleport/Teleport.astro';
 
 ## Sidebar Visibility
 
-When you provide a `sidebarSelector`, Teleport becomes visibility-aware. The `whenHidden` option controls what happens when navigation keys are pressed while the sidebar is hidden:
+When you provide a `sidebarSelector`, Teleport becomes visibility-aware. This works the same whether the sidebar is hidden due to a responsive breakpoint or user toggle:
+
+- **Sidebar visible**: j/k/arrows navigate the sidebar
+- **Sidebar hidden**: arrows pass through for native scroll, j/k do nothing, press `t` to toggle sidebar back
+
+The `whenHidden` option controls navigation key behavior when sidebar is hidden:
 
 ```javascript
 createTeleport({
   itemSelector: '.nav-item',
   sidebarSelector: '.sidebar',
 
-  // 'ignore' (default) - j/k/arrows scroll content, Enter does nothing
+  // 'ignore' (default) - arrows scroll natively, j/k/Enter do nothing
   whenHidden: 'ignore',
 
   // 'show-sidebar' - j/k/arrows/Enter auto-open sidebar, then navigate

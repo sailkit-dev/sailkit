@@ -121,7 +121,7 @@ test.describe('whenHidden: ignore', () => {
     expect(await page.evaluate(() => window.getHighlightedIndex())).toBe(1);
   });
 
-  test('j scrolls content (not navigate) when sidebar is hidden', async ({ page }) => {
+  test('j does nothing when sidebar is hidden', async ({ page }) => {
     await page.evaluate(() => window.hideSidebar('transform'));
     await page.waitForTimeout(350); // Wait for CSS transition
 
@@ -135,7 +135,7 @@ test.describe('whenHidden: ignore', () => {
     expect(after).toBe(before);
   });
 
-  test('k scrolls content (not navigate) when sidebar is hidden', async ({ page }) => {
+  test('k does nothing when sidebar is hidden', async ({ page }) => {
     // First navigate to an item while visible (position 0 → 1 → 2)
     await page.keyboard.press('j');
     await page.keyboard.press('j');

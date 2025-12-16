@@ -223,6 +223,18 @@ export function createKeyboardHandler(
     ...bindings,
   };
 
+  /**
+   * Call a callback and preventDefault if it returns true (or undefined for backwards compat)
+   */
+  function callHandler(event: KeyboardEvent, callback: (event: KeyboardEvent) => boolean | void): boolean {
+    const result = callback(event);
+    // preventDefault unless callback explicitly returns false
+    if (result !== false) {
+      event.preventDefault();
+    }
+    return true;
+  }
+
   function handleKeydown(event: KeyboardEvent): boolean {
     // Skip if typing in input/textarea
     if (ignoreWhenTyping && isTypingContext(event)) {
@@ -231,59 +243,41 @@ export function createKeyboardHandler(
 
     // Directional bindings
     if (onDown && matchesAnyKey(event, mergedBindings.down)) {
-      event.preventDefault();
-      onDown();
-      return true;
+      return callHandler(event, onDown);
     }
 
     if (onUp && matchesAnyKey(event, mergedBindings.up)) {
-      event.preventDefault();
-      onUp();
-      return true;
+      return callHandler(event, onUp);
     }
 
     if (onLeft && matchesAnyKey(event, mergedBindings.left)) {
-      event.preventDefault();
-      onLeft();
-      return true;
+      return callHandler(event, onLeft);
     }
 
     if (onRight && matchesAnyKey(event, mergedBindings.right)) {
-      event.preventDefault();
-      onRight();
-      return true;
+      return callHandler(event, onRight);
     }
 
     // Scroll bindings
     if (onScrollDown && matchesAnyKey(event, mergedBindings.scrollDown)) {
-      event.preventDefault();
-      onScrollDown();
-      return true;
+      return callHandler(event, onScrollDown);
     }
 
     if (onScrollUp && matchesAnyKey(event, mergedBindings.scrollUp)) {
-      event.preventDefault();
-      onScrollUp();
-      return true;
+      return callHandler(event, onScrollUp);
     }
 
     // Action bindings
     if (onSelect && matchesAnyKey(event, mergedBindings.select)) {
-      event.preventDefault();
-      onSelect();
-      return true;
+      return callHandler(event, onSelect);
     }
 
     if (onToggleSidebar && matchesAnyKey(event, mergedBindings.toggleSidebar)) {
-      event.preventDefault();
-      onToggleSidebar();
-      return true;
+      return callHandler(event, onToggleSidebar);
     }
 
     if (onOpenFinder && matchesAnyKey(event, mergedBindings.openFinder)) {
-      event.preventDefault();
-      onOpenFinder();
-      return true;
+      return callHandler(event, onOpenFinder);
     }
 
     return false;
