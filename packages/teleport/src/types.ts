@@ -25,6 +25,10 @@ export interface KeyBindings {
   toggleSidebar?: string[];
   /** Open fuzzy finder (default: ['/']) */
   openFinder?: string[];
+  /** Go to top/first item (default: ['gg'] - vim sequence) */
+  goToTop?: string[];
+  /** Go to bottom/last item (default: ['G'] - Shift+g) */
+  goToBottom?: string[];
 }
 
 /**
@@ -58,6 +62,8 @@ export interface KeyboardHandlerConfig {
   onSelect?: KeyCallback;
   onToggleSidebar?: KeyCallback;
   onOpenFinder?: KeyCallback;
+  onGoToTop?: KeyCallback;
+  onGoToBottom?: KeyCallback;
   /** Ignore keystrokes when typing in input/textarea (default: true) */
   ignoreWhenTyping?: boolean;
 }

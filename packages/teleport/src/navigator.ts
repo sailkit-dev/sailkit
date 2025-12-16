@@ -285,6 +285,14 @@ export function createTeleport(config: CreateTeleportConfig): TeleportInstance {
     onOpenFinder: onOpenFinder
       ? () => onOpenFinder()
       : () => document.dispatchEvent(new CustomEvent('teleport:open-finder')),
+    onGoToTop: (event) => handleNavigationAction(event, () => {
+      navigator?.goTo(0);
+    }),
+    onGoToBottom: (event) => handleNavigationAction(event, () => {
+      if (navigator && elements.length > 0) {
+        navigator.goTo(elements.length - 1);
+      }
+    }),
   });
 
   // Attach global keydown listener
