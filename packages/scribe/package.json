@@ -23,6 +23,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "esbuild": "^0.27.1",
     "log-update": "^7.0.2"
   }
 }
