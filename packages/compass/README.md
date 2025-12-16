@@ -1,4 +1,4 @@
-# @sailkit/compass
+# @bearing-dev/compass
 
 Headless navigation cursor for ordered and nested content.
 

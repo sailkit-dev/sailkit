@@ -3,7 +3,7 @@
  *
  * @example
  * ```typescript
- * import { initTheme, toggleTheme, onThemeChange } from '@sailkit/lantern';
+ * import { initTheme, toggleTheme, onThemeChange } from '@bearing-dev/lantern';
  *
  * // Initialize on page load (call early to prevent flash)
  * initTheme();
