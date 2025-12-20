@@ -68,11 +68,11 @@ Your content stays navigable in your editor without any build step.
 
 ## Prior Art
 
-The `[[wiki-link]]` syntax has a long history:
+The `[[wiki-link]]` syntax appears in many tools:
 
-- **MediaWiki** (2002) — Wikipedia's engine, origin of `[[page]]` syntax
-- **Org mode** (2003) — Emacs system with `[[link][desc]]`, bidirectional links, and export
-- **Roam/Obsidian** (2019-20) — Popularized wiki-links in the "tools for thought" space
+- **MediaWiki** — Wikipedia's engine uses `[[page]]` syntax
+- **Org mode** — Emacs system with `[[link][desc]]` and bidirectional links
+- **Roam/Obsidian** — Note-taking apps that use wiki-links
 
 This plugin brings the same convention to static site generators.
 
