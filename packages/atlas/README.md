@@ -57,6 +57,16 @@ Now `[[one-fish]]` → `/fish/one-fish/` and `[[blue-gecko]]` → `/reptile/blue
 
 See [`remark-magic-links.test.ts`](./src/remark-magic-links.test.ts) for more examples.
 
+## Editor Support
+
+The `[[wiki-link]]` syntax is a widely-adopted convention. Many editors can follow these links natively:
+
+- **Neovim**: `Ctrl+]` jumps to the linked file
+- **Obsidian**: Click to navigate
+- **VS Code**: Extensions like "Markdown Links" add support
+
+Your content stays navigable in your editor without any build step.
+
 ## How It Works
 
 1. You write `[[some-page]]` in markdown
