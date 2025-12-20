@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teleport Scroll Test Fixture</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+    body { display: flex; }
+    .sidebar {
+      width: 200px;
+      height: 100%;
+      overflow-y: auto;
+      background: #f0f0f0;
+      flex-shrink: 0;
+    }
+    .nav-item {
+      display: block;
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+      text-decoration: none;
+      color: #333;
+    }
+    .main-content {
+      flex: 1;
+      height: 100%;
+      overflow-y: auto;
+    }
+    .content-block {
+      height: 300px;
+      padding: 20px;
+      border-bottom: 1px solid #ccc;
+    }
+    .content-block:nth-child(odd) {
+      background: #fafafa;
+    }
+    .teleport-highlight {
+      outline: 2px solid #3b82f6;
+      background: rgba(59, 130, 246, 0.1);
+    }
+  </style>
+</head>
+<body>
+  <nav class="sidebar">
+    <a href="#1" class="nav-item">Item 1</a>
+    <a href="#2" class="nav-item">Item 2</a>
+    <a href="#3" class="nav-item">Item 3</a>
+  </nav>
+  <div class="main-content">
+    <div class="content-block">Block 1 - Scroll test content</div>
+    <div class="content-block">Block 2</div>
+    <div class="content-block">Block 3</div>
+    <div class="content-block">Block 4</div>
+    <div class="content-block">Block 5</div>
+    <div class="content-block">Block 6</div>
+    <div class="content-block">Block 7</div>
+    <div class="content-block">Block 8</div>
+  </div>
+  <script type="module">
+    import { initTeleport, scrollElement, getViewportHeight } from '/packages/teleport/dist/index.js';
+
+    // Scroll fixture - tests scrolling a specific container
+    const mainContent = document.querySelector('.main-content');
+
+    window.teleport = initTeleport({
+      itemSelector: '.nav-item',
+      highlightClass: 'teleport-highlight',
+      onScrollDown: () => {
+        if (mainContent) {
+          mainContent.scrollBy({ top: getViewportHeight() / 2, behavior: 'smooth' });
+        }
+      },
+      onScrollUp: () => {
+        if (mainContent) {
+          mainContent.scrollBy({ top: -getViewportHeight() / 2, behavior: 'smooth' });
+        }
+      },
+    });
+  </script>
+</body>
+</html>
