@@ -62,7 +62,6 @@ See [`remark-magic-links.test.ts`](./src/remark-magic-links.test.ts) for more ex
 The `[[wiki-link]]` syntax is a widely-adopted convention. Many editors can follow these links natively:
 
 - **Neovim**: `Ctrl+]` jumps to the linked file
-- **Obsidian**: Click to navigate
 - **VS Code**: Extensions like "Markdown Links" add support
 
 Your content stays navigable in your editor without any build step.
