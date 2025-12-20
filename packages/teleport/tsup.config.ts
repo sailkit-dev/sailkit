@@ -5,8 +5,8 @@ export default defineConfig({
   format: ['esm'],
   dts: true,
   clean: true,
-  // Bundle all dependencies for browser use
-  noExternal: ['@bearing-dev/compass'],
+  // Keep compass as external dependency (resolved at runtime)
+  external: ['@bearing-dev/compass'],
   target: 'es2020',
   minify: false,
   sourcemap: true,
