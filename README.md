@@ -1,4 +1,4 @@
-# Sailkit
+# Bearing
 
 Lightweight, composable utilities for documentation sites.
 

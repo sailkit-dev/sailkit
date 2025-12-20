@@ -1,0 +1,46 @@
+{
+  "name": "@bearing-dev/teleport",
+  "version": "0.0.1",
+  "description": "Vim-style keyboard navigation bindings with DOM integration",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./Teleport.astro": "./Teleport.astro"
+  },
+  "files": [
+    "dist",
+    "Teleport.astro"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@bearing-dev/compass": ">=0.0.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.57.0",
+    "jsdom": "^25.0.0",
+    "serve": "^14.2.5",
+    "tsup": "^8.5.1",
+    "typescript": "^5.3.0",
+    "vitest": "^2.0.0"
+  },
+  "keywords": [
+    "vim",
+    "keyboard",
+    "navigation",
+    "keybindings",
+    "hjkl"
+  ],
+  "license": "MIT"
+}

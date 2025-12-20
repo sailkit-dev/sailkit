@@ -1,0 +1,93 @@
+---
+/**
+ * Teleport - Vim-style keyboard navigation for Astro sites.
+ *
+ * A thin Astro wrapper around createTeleport(). For vanilla JS usage,
+ * import createTeleport directly from '@bearing-dev/teleport'.
+ */
+interface Props {
+  /** CSS selector for navigable items (default: '.nav-item') */
+  itemSelector?: string;
+  /** CSS selector for sidebar container (enables visibility-aware navigation) */
+  sidebarSelector?: string;
+  /** Class to add to highlighted item (default: 'teleport-highlight') */
+  highlightClass?: string;
+  /** Enable wrapping at ends (default: true) */
+  wrap?: boolean;
+  /** What to do when j/k/Enter pressed while sidebar hidden (default: 'ignore') */
+  whenHidden?: 'ignore' | 'show-sidebar';
+  /** Media query to detect desktop mode where arrows pass through (default: '(min-width: 769px)') */
+  desktopMediaQuery?: string;
+}
+
+const {
+  itemSelector = '.nav-item',
+  sidebarSelector,
+  highlightClass = 'teleport-highlight',
+  wrap = true,
+  whenHidden = 'ignore',
+  desktopMediaQuery = '(min-width: 769px)',
+} = Astro.props;
+---
+
+<teleport-config
+  data-item-selector={itemSelector}
+  data-sidebar-selector={sidebarSelector}
+  data-highlight-class={highlightClass}
+  data-wrap={wrap.toString()}
+  data-when-hidden={whenHidden}
+  data-desktop-media-query={desktopMediaQuery}
+  style="display: none;"
+></teleport-config>
+
+<script>
+  import { createTeleport, type TeleportInstance, type WhenHiddenBehavior, type BreakpointMode } from './src/index.js';
+
+  let teleport: TeleportInstance | null = null;
+  let mediaQuery: MediaQueryList | null = null;
+
+  function setupTeleport(): TeleportInstance | null {
+    const configEl = document.querySelector('teleport-config');
+    if (!configEl) return null;
+
+    const itemSelector = configEl.getAttribute('data-item-selector') || '.nav-item';
+    const sidebarSelector = configEl.getAttribute('data-sidebar-selector') || undefined;
+    const highlightClass = configEl.getAttribute('data-highlight-class') || 'teleport-highlight';
+    const wrap = configEl.getAttribute('data-wrap') !== 'false';
+    const whenHidden = (configEl.getAttribute('data-when-hidden') || 'ignore') as WhenHiddenBehavior;
+    const desktopMediaQuery = configEl.getAttribute('data-desktop-media-query') || '(min-width: 769px)';
+
+    // Detect breakpoint using media query
+    mediaQuery = window.matchMedia(desktopMediaQuery);
+    const breakpoint: BreakpointMode = mediaQuery.matches ? 'desktop' : 'mobile';
+
+    return createTeleport({
+      itemSelector,
+      sidebarSelector,
+      highlightClass,
+      wrap,
+      whenHidden,
+      breakpoint,
+    });
+  }
+
+  function handleBreakpointChange(e: MediaQueryListEvent): void {
+    // Reinitialize teleport when breakpoint changes
+    teleport?.destroy();
+    teleport = setupTeleport();
+  }
+
+  // Run on initial load
+  teleport = setupTeleport();
+
+  // Listen for breakpoint changes
+  mediaQuery?.addEventListener('change', handleBreakpointChange);
+
+  // Re-run after Astro page transitions
+  document.addEventListener('astro:after-swap', () => {
+    mediaQuery?.removeEventListener('change', handleBreakpointChange);
+    teleport?.destroy();
+    teleport = setupTeleport();
+    mediaQuery?.addEventListener('change', handleBreakpointChange);
+  });
+</script>
