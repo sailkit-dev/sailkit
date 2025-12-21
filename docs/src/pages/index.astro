@@ -1,6 +1,7 @@
 ---
 import { initScript } from '@sailkit-dev/lantern';
 import ThemeToggle from '@sailkit-dev/lantern/ThemeToggle.astro';
+import Teleport from '@sailkit-dev/teleport/Teleport.astro';
 ---
 
 <!DOCTYPE html>
@@ -206,6 +207,12 @@ import ThemeToggle from '@sailkit-dev/lantern/ThemeToggle.astro';
         font-family: ui-monospace, monospace;
         font-size: 0.75rem;
       }
+
+      .teleport-highlight {
+        outline: 2px solid var(--color-accent) !important;
+        background-color: rgba(59, 130, 246, 0.1) !important;
+        border-radius: 8px;
+      }
     </style>
   </head>
   <body>
@@ -222,28 +229,28 @@ import ThemeToggle from '@sailkit-dev/lantern/ThemeToggle.astro';
       </p>
 
       <div class="cta">
-        <a href="/docs/introduction/" class="btn btn-primary">Get Started</a>
-        <a href="/docs/packages/" class="btn btn-secondary">View Packages</a>
+        <a href="/docs/introduction/" class="btn btn-primary nav-item">Get Started</a>
+        <a href="/docs/packages/" class="btn btn-secondary nav-item">View Packages</a>
       </div>
 
       <div class="packages">
-        <a href="/docs/compass/" class="package">
+        <a href="/docs/compass/" class="package nav-item">
           <div class="package-name">Compass</div>
           <div class="package-desc">Navigation state machine for nested content structures</div>
         </a>
-        <a href="/docs/teleport/" class="package">
+        <a href="/docs/teleport/" class="package nav-item">
           <div class="package-name">Teleport</div>
           <div class="package-desc">Vim-style keyboard navigation with DOM integration</div>
         </a>
-        <a href="/docs/lantern/" class="package">
+        <a href="/docs/lantern/" class="package nav-item">
           <div class="package-name">Lantern</div>
           <div class="package-desc">Theme toggle with flash-free dark mode</div>
         </a>
-        <a href="/docs/lighthouse/" class="package">
+        <a href="/docs/lighthouse/" class="package nav-item">
           <div class="package-name">Lighthouse</div>
           <div class="package-desc">Smart 404 handling with fuzzy URL matching</div>
         </a>
-        <a href="/docs/atlas/" class="package">
+        <a href="/docs/atlas/" class="package nav-item">
           <div class="package-name">Atlas</div>
           <div class="package-desc">Wikipedia-style magic links in markdown</div>
         </a>
@@ -281,5 +288,7 @@ import ThemeToggle from '@sailkit-dev/lantern/ThemeToggle.astro';
     <footer>
       Built with Sailkit. Press <kbd class="kbd">j</kbd> / <kbd class="kbd">k</kbd> to navigate docs.
     </footer>
+
+    <Teleport itemSelector=".nav-item" contentSelector="main" />
   </body>
 </html>
