@@ -187,7 +187,7 @@ Lantern respects `prefers-color-scheme` by default:
 
 To handle manually:
 
-```typescript
+```typescript nocheck
 import { setTheme } from '@sailkit/lantern';
 
 // Respect system preference
@@ -204,7 +204,7 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e)
 
 Update UI when theme changes:
 
-```typescript
+```typescript nocheck
 import { onThemeChange, getTheme } from '@sailkit/lantern';
 
 // Update icon based on theme

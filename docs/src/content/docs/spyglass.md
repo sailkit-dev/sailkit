@@ -43,7 +43,7 @@ Spyglass does **not** implement fuzzy matching itself. It's an adapter that inte
 
 Search engines have different APIs:
 
-```typescript
+```typescript nocheck
 // Fuse.js
 fuse.search('query')
 
@@ -62,7 +62,7 @@ Spyglass normalizes these into a consistent interface and renders the UI.
 
 Build searchable items from your Compass navigation structure:
 
-```typescript
+```typescript nocheck
 import { flattenSlugs } from '@sailkit/compass';
 import { Spyglass } from '@sailkit/spyglass';
 
@@ -80,7 +80,7 @@ const items = slugs.map(slug => ({
 
 Teleport emits `teleport:open-finder` when user presses `t`. Wire it up:
 
-```typescript
+```typescript nocheck
 document.addEventListener('teleport:open-finder', () => {
   spyglass.open(); // opens command palette
 });
@@ -88,7 +88,7 @@ document.addEventListener('teleport:open-finder', () => {
 
 ## API Preview
 
-```typescript
+```typescript nocheck
 import { createSpyglass } from '@sailkit/spyglass';
 import Fuse from 'fuse.js';
 

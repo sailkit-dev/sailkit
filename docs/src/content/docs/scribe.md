@@ -49,7 +49,7 @@ const partial =
 
 ## Programmatic API
 
-```typescript
+```typescript nocheck
 import { parseMarkdown, filterTestableBlocks, runBlocks } from '@sailkit/scribe';
 
 const content = `

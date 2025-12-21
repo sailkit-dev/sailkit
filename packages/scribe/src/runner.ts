@@ -1,10 +1,12 @@
 /**
- * In-process runner using esbuild transform + vm module
- * Much faster than spawning child processes (~240x speedup)
+ * In-process runner using esbuild build + vm module
+ * Bundles imports so code blocks can use real packages
  */
 
 import vm from 'node:vm'
-import { transform } from 'esbuild'
+import assert from 'node:assert'
+import path from 'node:path'
+import { build } from 'esbuild'
 import type { CodeBlock } from './parser.js'
 
 export interface RunResult {
@@ -14,20 +16,45 @@ export interface RunResult {
   error?: string
 }
 
+// Find workspace root by looking for package.json with workspaces
+function findWorkspaceRoot(): string {
+  let dir = process.cwd()
+  while (dir !== '/') {
+    try {
+      const pkg = require(path.join(dir, 'package.json'))
+      if (pkg.workspaces) {
+        return dir
+      }
+    } catch {
+      // Continue searching
+    }
+    dir = path.dirname(dir)
+  }
+  return process.cwd()
+}
+
 export async function runBlock(block: CodeBlock): Promise<RunResult> {
   const isTypeScript = block.language === 'typescript' || block.language === 'ts'
 
   try {
-    // Transpile TypeScript to JavaScript if needed
-    let code = block.code
-    if (isTypeScript) {
-      const result = await transform(code, {
-        loader: 'ts',
-        format: 'cjs', // vm.runInContext works better with CJS
-        target: 'node18'
-      })
-      code = result.code
-    }
+    // Bundle with esbuild to resolve imports
+    const result = await build({
+      stdin: {
+        contents: block.code,
+        loader: isTypeScript ? 'ts' : 'js',
+        resolveDir: findWorkspaceRoot(),
+      },
+      bundle: true,
+      write: false,
+      format: 'cjs',
+      platform: 'node',
+      target: 'node18',
+      // Resolve from workspace node_modules
+      nodePaths: [path.join(findWorkspaceRoot(), 'node_modules')],
+      logLevel: 'silent',
+    })
+
+    const code = result.outputFiles?.[0]?.text ?? ''
 
     // Capture console output
     let stdout = ''
@@ -38,9 +65,10 @@ export async function runBlock(block: CodeBlock): Promise<RunResult> {
       info: (...args: unknown[]) => { stdout += args.map(String).join(' ') + '\n' }
     }
 
-    // Create sandbox with common globals
+    // Create sandbox with common globals + assert
     const sandbox = {
       console: mockConsole,
+      assert,  // Node's assert module
       setTimeout,
       setInterval,
       clearTimeout,
@@ -50,7 +78,17 @@ export async function runBlock(block: CodeBlock): Promise<RunResult> {
       Error,
       TypeError,
       ReferenceError,
-      SyntaxError
+      SyntaxError,
+      // CJS module support
+      module: { exports: {} },
+      exports: {},
+      require: (id: string) => {
+        // Only allow requiring built-in modules
+        if (id.startsWith('node:') || ['assert', 'path', 'fs', 'util'].includes(id)) {
+          return require(id)
+        }
+        throw new Error(`Cannot require '${id}' - imports should be bundled by esbuild`)
+      },
     }
 
     vm.createContext(sandbox)

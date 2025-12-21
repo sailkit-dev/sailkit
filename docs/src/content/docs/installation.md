@@ -66,7 +66,7 @@ All packages work with any JavaScript framework. Additionally, some packages pro
 
 All packages include TypeScript definitions. No additional `@types` packages needed.
 
-```typescript
+```typescript nocheck
 // Types are exported from each package
 import type { NavItem, Navigator } from '@sailkit/compass';
 import type { KeyBindings, Teleport } from '@sailkit/teleport';

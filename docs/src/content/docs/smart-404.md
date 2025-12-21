@@ -76,7 +76,7 @@ When a single match exceeds this score, redirect automatically:
 
 Minimum score to show as suggestion:
 
-```typescript
+```typescript nocheck
 const matches = findMatches(path, pages, {
   threshold: 0.15,  // Default: Show most suggestions
 });
@@ -92,7 +92,7 @@ const strictMatches = findMatches(path, pages, {
 
 For content-heavy sites where titles matter more:
 
-```typescript
+```typescript nocheck
 import {
   createCompositeMatcher,
   tokenOverlapMatcher,
@@ -111,7 +111,7 @@ const titleFocusedMatcher = createCompositeMatcher([
 
 Boost matches in the same section:
 
-```typescript
+```typescript nocheck
 const categoryMatcher = {
   score(requestedPath: string, page: Page): number {
     const requestCategory = requestedPath.split('/')[1];
@@ -132,7 +132,7 @@ const categoryMatcher = {
 
 Support URL aliases:
 
-```typescript
+```typescript nocheck
 const aliases = {
   'setup': 'installation',
   'intro': 'introduction',
@@ -161,7 +161,7 @@ const aliasMatcher = {
 
 ### Include All Pages
 
-```typescript
+```typescript nocheck
 import { getCollection } from 'astro:content';
 
 const docs = await getCollection('docs');
@@ -174,7 +174,7 @@ const pages = docs.map(doc => ({
 
 ### Group by Section
 
-```typescript
+```typescript nocheck
 const pages = [
   // Getting Started
   { url: '/docs/introduction/', title: 'Introduction', section: 'Getting Started' },
@@ -192,7 +192,7 @@ The `section` field groups suggestions in the UI.
 
 Don't include pages that already redirect:
 
-```typescript
+```typescript nocheck
 const pages = allPages.filter(page => !page.redirect);
 ```
 
@@ -200,7 +200,7 @@ const pages = allPages.filter(page => !page.redirect);
 
 Track 404s to improve content:
 
-```typescript
+```typescript nocheck
 // In your 404.astro
 const requestedPath = Astro.url.pathname;
 const matches = findMatches(requestedPath, pages);

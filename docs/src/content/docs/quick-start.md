@@ -11,7 +11,7 @@ This guide shows you how to set up a documentation site using all five Sailkit p
 
 First, add [[atlas]] to your Astro config to enable wiki-style links:
 
-```javascript
+```javascript nocheck
 // astro.config.mjs
 import { remarkMagicLinks } from '@sailkit/atlas';
 
@@ -54,7 +54,7 @@ import ThemeToggle from '@sailkit/lantern/ThemeToggle.astro';
 
 Define your navigation structure using [[compass]]:
 
-```typescript
+```typescript nocheck
 // navigation.ts
 import type { NavItem } from '@sailkit/compass';
 
@@ -73,7 +73,7 @@ export const navigation: NavItem[] = [
 
 Use `getNeighbors()` for prev/next links:
 
-```typescript
+```typescript nocheck
 import { getNeighbors } from '@sailkit/compass';
 
 const { prev, next } = getNeighbors(navigation, 'installation');

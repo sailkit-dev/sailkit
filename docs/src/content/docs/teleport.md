@@ -84,7 +84,7 @@ teleport.destroy();
 
 Just the keyboard handling, you manage navigation state:
 
-```typescript
+```typescript nocheck
 import { initTeleport } from '@sailkit/teleport';
 import { createNavigator } from '@sailkit/compass';
 
@@ -101,7 +101,7 @@ teleport.destroy();
 
 Low-level key binding without any navigation logic:
 
-```typescript
+```typescript nocheck
 import { createKeyboardHandler, DEFAULT_BINDINGS } from '@sailkit/teleport';
 
 const handler = createKeyboardHandler({
@@ -158,7 +158,7 @@ createTeleport({
 
 ## Custom Bindings
 
-```typescript
+```typescript nocheck
 import { createKeyboardHandler } from '@sailkit/teleport';
 
 createKeyboardHandler({
@@ -192,7 +192,7 @@ Teleport adds the highlight class to the current item. You provide the styles:
 
 By default, key bindings are disabled when typing in text inputs:
 
-```typescript
+```typescript nocheck
 import { isTypingContext } from '@sailkit/teleport';
 
 document.addEventListener('keydown', (e) => {

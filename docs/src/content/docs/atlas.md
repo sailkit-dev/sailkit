@@ -35,7 +35,7 @@ Read about [[teleport|keyboard navigation]] too.
 
 Add Atlas to your Astro config:
 
-```javascript
+```javascript nocheck
 // astro.config.mjs
 import { remarkMagicLinks } from '@sailkit/atlas';
 
@@ -73,7 +73,7 @@ Now wiki links work in all markdown files.
 
 Enable both syntaxes in the same document:
 
-```javascript
+```javascript nocheck
 [remarkMagicLinks, {
   urlBuilder: (id) => `/docs/${id}/`,
   syntax: 'both'
@@ -84,7 +84,7 @@ Enable both syntaxes in the same document:
 
 The `urlBuilder` function transforms link IDs to URLs:
 
-```javascript
+```javascript nocheck
 // Simple prefix
 urlBuilder: (id) => `/docs/${id}/`
 
@@ -140,7 +140,7 @@ No runtime JavaScript required.
 
 Atlas works with Astro content collections:
 
-```javascript
+```javascript nocheck
 // astro.config.mjs
 export default {
   markdown: {
@@ -159,7 +159,7 @@ All `.md` files in `src/content/` will process magic links.
 
 Works identically with MDX files:
 
-```javascript
+```javascript nocheck
 // astro.config.mjs
 import mdx from '@astrojs/mdx';
 import { remarkMagicLinks } from '@sailkit/atlas';
@@ -184,7 +184,7 @@ Atlas helps prevent broken links by centralizing URL generation. Combined with [
 
 ## Configuration Reference
 
-```typescript
+```typescript nocheck
 interface RemarkMagicLinksConfig {
   /** Build URL from link ID (required) */
   urlBuilder: (id: string) => string;

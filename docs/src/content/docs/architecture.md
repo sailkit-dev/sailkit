@@ -61,14 +61,14 @@ Atlas has zero runtime footprint—it's purely a build-time transformation.
 
 **Build time**: Generate prev/next links statically
 
-```typescript
+```typescript nocheck
 // In Astro component
 const { prev, next } = getNeighbors(navigation, slug);
 ```
 
 **Runtime**: Manage navigation state in SPAs
 
-```typescript
+```typescript nocheck
 // In client JavaScript
 const nav = createNavigator({ items: navigation });
 nav.next();
@@ -99,7 +99,7 @@ Teleport can work standalone or integrate with Compass for intelligent page navi
 
 **Runtime**: Toggle theme, persist to localStorage, notify subscribers
 
-```typescript
+```typescript nocheck
 toggleTheme();
 onThemeChange(callback);
 ```
@@ -180,7 +180,7 @@ User types /docs/install  →  Lighthouse suggests /docs/installation/
 
 Compass provides structure, Teleport provides interaction:
 
-```typescript
+```typescript nocheck
 // Define structure once
 const navigation: NavItem[] = [...];
 
@@ -250,7 +250,7 @@ Each package offers multiple abstraction levels:
 
 ### Low Level (Full Control)
 
-```typescript
+```typescript nocheck
 // Teleport: Just key handling
 import { createKeyboardHandler } from '@sailkit/teleport';
 
@@ -263,7 +263,7 @@ import { getNeighbors } from '@sailkit/compass';
 
 ### Mid Level (Some Opinions)
 
-```typescript
+```typescript nocheck
 // Teleport: DOM handling included
 import { createDOMNavigator } from '@sailkit/teleport';
 

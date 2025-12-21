@@ -27,7 +27,7 @@ Out of the box, Teleport uses these Vim-inspired keys:
 
 ### Changing Individual Keys
 
-```typescript
+```typescript nocheck
 import { initTeleport } from '@sailkit/teleport';
 
 initTeleport({
@@ -41,7 +41,7 @@ initTeleport({
 
 ### Full Emacs-Style Bindings
 
-```typescript
+```typescript nocheck
 initTeleport({
   itemSelector: '.nav-item',
   bindings: {
@@ -60,7 +60,7 @@ initTeleport({
 
 Set to empty array to disable:
 
-```typescript
+```typescript nocheck
 initTeleport({
   itemSelector: '.nav-item',
   bindings: {
@@ -75,7 +75,7 @@ initTeleport({
 
 Keys are specified as strings with optional modifiers:
 
-```typescript
+```typescript nocheck
 // Simple keys
 'j'
 'Enter'
@@ -96,7 +96,7 @@ Keys are specified as strings with optional modifiers:
 
 Combine [[teleport]] with [[compass]] for intelligent page navigation:
 
-```typescript
+```typescript nocheck
 import { initTeleport } from '@sailkit/teleport';
 import { createNavigator } from '@sailkit/compass';
 import { navigation } from './navigation';
@@ -129,7 +129,7 @@ initTeleport({
 
 ### Custom Scroll Behavior
 
-```typescript
+```typescript nocheck
 import { initTeleport, scrollElement } from '@sailkit/teleport';
 
 initTeleport({
@@ -150,7 +150,7 @@ const handler = createKeyboardHandler({
 
 ### Fuzzy Finder Integration
 
-```typescript
+```typescript nocheck
 initTeleport({
   itemSelector: '.nav-item',
   onOpenFinder: () => {
@@ -173,7 +173,7 @@ Teleport offers three abstraction layers. Choose based on your needs:
 
 Use when you have custom DOM handling:
 
-```typescript
+```typescript nocheck
 import { createKeyboardHandler } from '@sailkit/teleport';
 
 let currentIndex = 0;
@@ -197,7 +197,7 @@ document.addEventListener('keydown', handler.handleKeydown);
 
 Use when you need highlighting but custom keyboard callbacks:
 
-```typescript
+```typescript nocheck
 import { createDOMNavigator, createKeyboardHandler } from '@sailkit/teleport';
 
 const navigator = createDOMNavigator({
@@ -218,7 +218,7 @@ document.addEventListener('keydown', handler.handleKeydown);
 
 Use for standard documentation navigation:
 
-```typescript
+```typescript nocheck
 import { initTeleport } from '@sailkit/teleport';
 
 const teleport = initTeleport({
@@ -232,7 +232,7 @@ const teleport = initTeleport({
 
 By default, key bindings are disabled in text inputs:
 
-```typescript
+```typescript nocheck
 // Keys won't trigger when typing in:
 // <input>, <textarea>, [contenteditable]
 

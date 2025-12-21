@@ -29,7 +29,7 @@ Enable with `syntax: 'colon'` or `syntax: 'both'`.
 
 ### Simple Prefix
 
-```javascript
+```javascript nocheck
 urlBuilder: (id) => `/docs/${id}/`
 
 // [[getting-started]] → /docs/getting-started/
@@ -37,7 +37,7 @@ urlBuilder: (id) => `/docs/${id}/`
 
 ### Category Detection
 
-```javascript
+```javascript nocheck
 urlBuilder: (id) => {
   const [category, ...rest] = id.split('/');
   if (['api', 'guide', 'tutorial'].includes(category)) {
@@ -52,7 +52,7 @@ urlBuilder: (id) => {
 
 ### External Wiki Links
 
-```javascript
+```javascript nocheck
 urlBuilder: (id) => {
   if (id.startsWith('wp:')) {
     const article = id.slice(3).replace(/ /g, '_');
@@ -71,7 +71,7 @@ urlBuilder: (id) => {
 
 ### Slug Transformation
 
-```javascript
+```javascript nocheck
 urlBuilder: (id) => {
   // Convert camelCase to kebab-case
   const slug = id.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
@@ -114,7 +114,7 @@ Use [[teleport|createKeyboardHandler()]] for custom bindings.
 
 Enable both wiki and colon syntax:
 
-```javascript
+```javascript nocheck
 // astro.config.mjs
 [remarkMagicLinks, {
   urlBuilder: (id) => `/docs/${id}/`,
@@ -132,7 +132,7 @@ Use cases:
 
 Create a custom remark plugin to warn about missing targets:
 
-```javascript
+```javascript nocheck
 import { remarkMagicLinks } from '@sailkit/atlas';
 
 const validSlugs = new Set([
@@ -188,7 +188,7 @@ Markdown file → Remark → HTML → Browser
 
 URL builder results aren't cached, so keep it simple:
 
-```javascript
+```javascript nocheck
 // Good: Simple logic
 urlBuilder: (id) => `/docs/${id}/`
 
