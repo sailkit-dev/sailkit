@@ -74,6 +74,146 @@ describe('parseKey', () => {
       meta: false,
     });
   });
+
+  it('parses all four modifiers together', () => {
+    expect(parseKey('Ctrl+Alt+Shift+Meta+x')).toEqual({
+      key: 'x',
+      ctrl: true,
+      alt: true,
+      shift: true,
+      meta: true,
+    });
+  });
+
+  it('handles modifiers in any order', () => {
+    expect(parseKey('Shift+Ctrl+d')).toEqual({
+      key: 'd',
+      ctrl: true,
+      alt: false,
+      shift: true,
+      meta: false,
+    });
+  });
+});
+
+describe('parseKey edge cases - invalid syntax', () => {
+  it('throws on empty string', () => {
+    expect(() => parseKey('')).toThrow('Invalid key binding: empty string');
+  });
+
+  it('throws on whitespace-only string', () => {
+    expect(() => parseKey('   ')).toThrow('Invalid key binding: empty string');
+  });
+
+  it('throws on modifier-only (no key)', () => {
+    expect(() => parseKey('Ctrl')).toThrow(
+      'Invalid key binding "Ctrl": modifier-only binding, missing key'
+    );
+    expect(() => parseKey('Ctrl+Shift')).toThrow(
+      'Invalid key binding "Ctrl+Shift": modifier-only binding, missing key'
+    );
+  });
+
+  it('throws on trailing plus sign (empty key)', () => {
+    expect(() => parseKey('Ctrl+')).toThrow(
+      'Invalid key binding "Ctrl+": empty key after modifier'
+    );
+    expect(() => parseKey('Ctrl+Shift+')).toThrow(
+      'Invalid key binding "Ctrl+Shift+": empty key after modifier'
+    );
+  });
+
+  it('throws on leading plus sign', () => {
+    expect(() => parseKey('+d')).toThrow(
+      'Invalid key binding "+d": leading plus sign'
+    );
+    expect(() => parseKey('+Ctrl+d')).toThrow(
+      'Invalid key binding "+Ctrl+d": leading plus sign'
+    );
+  });
+
+  it('throws on consecutive plus signs', () => {
+    expect(() => parseKey('Ctrl++d')).toThrow(
+      'Invalid key binding "Ctrl++d": consecutive plus signs'
+    );
+    expect(() => parseKey('Ctrl+++d')).toThrow(
+      'Invalid key binding "Ctrl+++d": consecutive plus signs'
+    );
+  });
+
+  it('throws on unrecognized modifier', () => {
+    expect(() => parseKey('Cntrl+d')).toThrow(
+      'Invalid key binding "Cntrl+d": unrecognized modifier "Cntrl"'
+    );
+    expect(() => parseKey('Control+d')).toThrow(
+      'Invalid key binding "Control+d": unrecognized modifier "Control"'
+    );
+    expect(() => parseKey('Foo+d')).toThrow(
+      'Invalid key binding "Foo+d": unrecognized modifier "Foo"'
+    );
+  });
+
+  it('throws on duplicate modifiers', () => {
+    expect(() => parseKey('Ctrl+Ctrl+d')).toThrow(
+      'Invalid key binding "Ctrl+Ctrl+d": duplicate modifier "Ctrl"'
+    );
+    expect(() => parseKey('Shift+Shift+d')).toThrow(
+      'Invalid key binding "Shift+Shift+d": duplicate modifier "Shift"'
+    );
+  });
+
+  it('throws on whitespace in binding', () => {
+    expect(() => parseKey('Ctrl + d')).toThrow(
+      'Invalid key binding "Ctrl + d": contains whitespace'
+    );
+    expect(() => parseKey(' Ctrl+d')).toThrow(
+      'Invalid key binding " Ctrl+d": contains whitespace'
+    );
+    expect(() => parseKey('Ctrl+d ')).toThrow(
+      'Invalid key binding "Ctrl+d ": contains whitespace'
+    );
+  });
+
+  it('throws on plus-only string', () => {
+    expect(() => parseKey('+')).toThrow(
+      'Invalid key binding "+": plus sign only'
+    );
+    expect(() => parseKey('++')).toThrow(
+      'Invalid key binding "++"'
+    );
+  });
+
+  it('throws on multi-character key (likely missing plus)', () => {
+    expect(() => parseKey('Ctrld')).toThrow(
+      'Invalid key binding "Ctrld": key "ctrld" looks like a missing plus sign'
+    );
+    expect(() => parseKey('jk')).toThrow(
+      'Invalid key binding "jk": key "jk" looks like a missing plus sign'
+    );
+  });
+
+  it('allows valid multi-character keys like ArrowDown, Enter, Escape', () => {
+    expect(() => parseKey('ArrowDown')).not.toThrow();
+    expect(() => parseKey('ArrowUp')).not.toThrow();
+    expect(() => parseKey('ArrowLeft')).not.toThrow();
+    expect(() => parseKey('ArrowRight')).not.toThrow();
+    expect(() => parseKey('Enter')).not.toThrow();
+    expect(() => parseKey('Escape')).not.toThrow();
+    expect(() => parseKey('Tab')).not.toThrow();
+    expect(() => parseKey('Backspace')).not.toThrow();
+    expect(() => parseKey('Delete')).not.toThrow();
+    expect(() => parseKey('Home')).not.toThrow();
+    expect(() => parseKey('End')).not.toThrow();
+    expect(() => parseKey('PageUp')).not.toThrow();
+    expect(() => parseKey('PageDown')).not.toThrow();
+    expect(() => parseKey('Space')).not.toThrow();
+  });
+
+  it('allows function keys F1-F12', () => {
+    expect(() => parseKey('F1')).not.toThrow();
+    expect(() => parseKey('F12')).not.toThrow();
+    expect(() => parseKey('Ctrl+F5')).not.toThrow();
+  });
 });
 
 describe('matchesKey', () => {
@@ -174,26 +314,26 @@ describe('createKeyboardHandler', () => {
     } as unknown as KeyboardEvent;
   }
 
-  it('calls onNextItem for j key', () => {
-    const onNextItem = vi.fn();
-    const handler = createKeyboardHandler({ onNextItem });
+  it('calls onDown for j key', () => {
+    const onDown = vi.fn();
+    const handler = createKeyboardHandler({ onDown });
 
     const event = createEvent('j');
     const handled = handler.handleKeydown(event);
 
     expect(handled).toBe(true);
-    expect(onNextItem).toHaveBeenCalled();
+    expect(onDown).toHaveBeenCalled();
     expect(event.preventDefault).toHaveBeenCalled();
   });
 
-  it('calls onPrevItem for k key', () => {
-    const onPrevItem = vi.fn();
-    const handler = createKeyboardHandler({ onPrevItem });
+  it('calls onUp for k key', () => {
+    const onUp = vi.fn();
+    const handler = createKeyboardHandler({ onUp });
 
     const event = createEvent('k');
     handler.handleKeydown(event);
 
-    expect(onPrevItem).toHaveBeenCalled();
+    expect(onUp).toHaveBeenCalled();
   });
 
   it('calls onScrollDown for Ctrl+d', () => {
@@ -207,33 +347,33 @@ describe('createKeyboardHandler', () => {
   });
 
   it('ignores keys when typing in input', () => {
-    const onNextItem = vi.fn();
-    const handler = createKeyboardHandler({ onNextItem });
+    const onDown = vi.fn();
+    const handler = createKeyboardHandler({ onDown });
 
     const input = document.createElement('input');
     const event = createEvent('j', input);
     const handled = handler.handleKeydown(event);
 
     expect(handled).toBe(false);
-    expect(onNextItem).not.toHaveBeenCalled();
+    expect(onDown).not.toHaveBeenCalled();
   });
 
   it('does not ignore keys when ignoreWhenTyping is false', () => {
-    const onNextItem = vi.fn();
-    const handler = createKeyboardHandler({ onNextItem, ignoreWhenTyping: false });
+    const onDown = vi.fn();
+    const handler = createKeyboardHandler({ onDown, ignoreWhenTyping: false });
 
     const input = document.createElement('input');
     const event = createEvent('j', input);
     handler.handleKeydown(event);
 
-    expect(onNextItem).toHaveBeenCalled();
+    expect(onDown).toHaveBeenCalled();
   });
 
   it('supports custom bindings', () => {
-    const onNextItem = vi.fn();
+    const onDown = vi.fn();
     const handler = createKeyboardHandler({
-      onNextItem,
-      bindings: { nextItem: ['n'] },
+      onDown,
+      bindings: { down: ['n'] },
     });
 
     // 'j' should no longer work
@@ -241,20 +381,20 @@ describe('createKeyboardHandler', () => {
 
     // 'n' should work
     expect(handler.handleKeydown(createEvent('n'))).toBe(true);
-    expect(onNextItem).toHaveBeenCalled();
+    expect(onDown).toHaveBeenCalled();
   });
 });
 
 describe('DEFAULT_BINDINGS', () => {
   it('has all expected bindings', () => {
-    expect(DEFAULT_BINDINGS.nextItem).toContain('j');
-    expect(DEFAULT_BINDINGS.prevItem).toContain('k');
+    expect(DEFAULT_BINDINGS.down).toContain('j');
+    expect(DEFAULT_BINDINGS.up).toContain('k');
     expect(DEFAULT_BINDINGS.scrollDown).toContain('Ctrl+d');
     expect(DEFAULT_BINDINGS.scrollUp).toContain('Ctrl+u');
-    expect(DEFAULT_BINDINGS.nextPage).toContain('l');
-    expect(DEFAULT_BINDINGS.prevPage).toContain('h');
+    expect(DEFAULT_BINDINGS.right).toContain('l');
+    expect(DEFAULT_BINDINGS.left).toContain('h');
     expect(DEFAULT_BINDINGS.select).toContain('Enter');
-    expect(DEFAULT_BINDINGS.openFinder).toContain('t');
-    expect(DEFAULT_BINDINGS.escape).toContain('Escape');
+    expect(DEFAULT_BINDINGS.toggleSidebar).toContain('t');
+    expect(DEFAULT_BINDINGS.openFinder).toContain('/');
   });
 });

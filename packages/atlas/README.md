@@ -18,7 +18,7 @@ Check out [:context-collapse] for more.
 
 ```javascript
 // astro.config.mjs
-import { remarkMagicLinks } from '@sailkit/atlas';
+import { remarkMagicLinks } from '@sailkit-dev/atlas';
 
 export default {
   markdown: {

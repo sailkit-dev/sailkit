@@ -1,5 +1,5 @@
 {
-  "name": "@sailkit/lantern",
+  "name": "@sailkit-dev/lantern",
   "version": "0.1.0",
   "description": "Theme toggle with flash-free hydration",
   "type": "module",
@@ -22,7 +22,6 @@
   ],
   "scripts": {
     "build": "tsc",
-    "prepare": "npm run build",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit"

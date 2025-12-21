@@ -1,0 +1,427 @@
+---
+import { initScript } from '@sailkit-dev/lantern';
+import ThemeToggle from '@sailkit-dev/lantern/ThemeToggle.astro';
+import Teleport from '@sailkit-dev/teleport/Teleport.astro';
+import { getNeighbors, flattenSlugs } from '@sailkit-dev/compass';
+import Sidebar from '../components/Sidebar.astro';
+import PrevNext from '../components/PrevNext.astro';
+import { navigation, getTitle } from '../navigation';
+
+interface Props {
+  title: string;
+  slug: string;
+}
+
+const { title, slug } = Astro.props;
+const { prev, next } = getNeighbors(navigation, slug, { leavesOnly: true });
+const allPages = flattenSlugs(navigation, true);
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title} - Sailkit Docs</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- Lantern: Prevent flash of wrong theme -->
+    <script is:inline set:html={initScript} />
+    <style is:global>
+      :root {
+        --color-bg: #ffffff;
+        --color-text: #1a1a2e;
+        --color-text-muted: #64748b;
+        --color-sidebar-bg: #f8fafc;
+        --color-border: #e2e8f0;
+        --color-accent: #3b82f6;
+        --color-accent-hover: #2563eb;
+        --color-accent-dim: rgba(59, 130, 246, 0.1);
+        --color-code-bg: #f1f5f9;
+        --sidebar-width: 280px;
+        --header-height: 60px;
+      }
+
+      [data-theme="dark"] {
+        --color-bg: #0f172a;
+        --color-text: #f1f5f9;
+        --color-text-muted: #94a3b8;
+        --color-sidebar-bg: #1e293b;
+        --color-border: #334155;
+        --color-accent: #60a5fa;
+        --color-accent-hover: #93c5fd;
+        --color-accent-dim: rgba(96, 165, 250, 0.15);
+        --color-code-bg: #1e293b;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: var(--color-bg);
+        color: var(--color-text);
+        scroll-behavior: smooth;
+      }
+
+      body {
+        min-height: 100vh;
+        display: grid;
+        grid-template-columns: var(--sidebar-width) 1fr;
+        grid-template-rows: var(--header-height) 1fr;
+        grid-template-areas:
+          "sidebar header"
+          "sidebar main";
+      }
+
+      .header {
+        grid-area: header;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 2rem;
+        border-bottom: 1px solid var(--color-border);
+        background: var(--color-bg);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+
+      .header-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+      }
+
+      .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .kbd-hint {
+        font-size: 0.75rem;
+        color: var(--color-text-muted);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .kbd {
+        padding: 0.125rem 0.375rem;
+        background: var(--color-code-bg);
+        border: 1px solid var(--color-border);
+        border-radius: 4px;
+        font-family: ui-monospace, monospace;
+        font-size: 0.6875rem;
+      }
+
+      .sidebar {
+        grid-area: sidebar;
+        background: var(--color-sidebar-bg);
+        border-right: 1px solid var(--color-border);
+        overflow-y: auto;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+      }
+
+      .sidebar-header {
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid var(--color-border);
+      }
+
+      .sidebar-logo {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--color-accent);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .sidebar-logo:hover {
+        color: var(--color-accent-hover);
+      }
+
+      main {
+        grid-area: main;
+        padding: 2rem 3rem;
+        max-width: 900px;
+        overflow-y: auto;
+      }
+
+      .content {
+        line-height: 1.7;
+      }
+
+      .content h1 {
+        font-size: 2.25rem;
+        margin-bottom: 1.5rem;
+        font-weight: 700;
+      }
+
+      .content h2 {
+        font-size: 1.5rem;
+        margin-top: 2.5rem;
+        margin-bottom: 1rem;
+        font-weight: 600;
+        border-bottom: 1px solid var(--color-border);
+        padding-bottom: 0.5rem;
+      }
+
+      .content h3 {
+        font-size: 1.25rem;
+        margin-top: 2rem;
+        margin-bottom: 0.75rem;
+        font-weight: 600;
+      }
+
+      .content p {
+        margin-bottom: 1rem;
+      }
+
+      .content a {
+        color: var(--color-accent);
+        text-decoration: none;
+      }
+
+      .content a:hover {
+        text-decoration: underline;
+      }
+
+      .content code {
+        background: var(--color-code-bg);
+        padding: 0.125rem 0.375rem;
+        border-radius: 4px;
+        font-family: ui-monospace, monospace;
+        font-size: 0.875em;
+      }
+
+      .content pre {
+        background: var(--color-code-bg);
+        padding: 1rem;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin-bottom: 1rem;
+      }
+
+      .content pre code {
+        background: none;
+        padding: 0;
+      }
+
+      .content ul, .content ol {
+        margin-bottom: 1rem;
+        padding-left: 1.5rem;
+      }
+
+      .content li {
+        margin-bottom: 0.5rem;
+      }
+
+      .content blockquote {
+        border-left: 4px solid var(--color-accent);
+        padding-left: 1rem;
+        margin: 1.5rem 0;
+        color: var(--color-text-muted);
+        font-style: italic;
+      }
+
+      .content table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 1.5rem;
+      }
+
+      .content th, .content td {
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 1px solid var(--color-border);
+      }
+
+      .content th {
+        font-weight: 600;
+        background: var(--color-sidebar-bg);
+      }
+
+      /* Teleport highlight override */
+      .teleport-highlight {
+        outline: 2px solid var(--color-accent) !important;
+        background-color: var(--color-accent-dim) !important;
+        border-radius: 4px;
+      }
+
+      /* Mobile hamburger button */
+      .hamburger {
+        display: none;
+        background: none;
+        border: none;
+        padding: 0.5rem;
+        cursor: pointer;
+        color: var(--color-text);
+      }
+
+      .hamburger svg {
+        width: 24px;
+        height: 24px;
+      }
+
+      /* Mobile sidebar overlay */
+      .sidebar-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 199;
+      }
+
+      @media (max-width: 768px) {
+        body {
+          grid-template-columns: 1fr;
+          grid-template-areas:
+            "header"
+            "main";
+        }
+
+        .hamburger {
+          display: block;
+        }
+
+        .sidebar {
+          position: fixed;
+          left: 0;
+          top: 0;
+          bottom: 0;
+          z-index: 200;
+          transform: translateX(-100%);
+          transition: transform 0.3s ease;
+        }
+
+        .sidebar.open {
+          transform: translateX(0);
+        }
+
+        .sidebar-overlay.open {
+          display: block;
+        }
+
+        main {
+          padding: 1.5rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <a href="/" class="sidebar-logo">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M3 13h1v7c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-7h1a1 1 0 0 0 .707-1.707l-9-9a1 1 0 0 0-1.414 0l-9 9A1 1 0 0 0 3 13zm9-8.586 6 6V20H6v-9.586l6-6z"/>
+          </svg>
+          Sailkit
+        </a>
+      </div>
+      <Sidebar currentSlug={slug} />
+    </aside>
+
+    <header class="header">
+      <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 12h18M3 6h18M3 18h18" />
+        </svg>
+      </button>
+      <h1 class="header-title">{title}</h1>
+      <div class="header-actions">
+        <div class="kbd-hint">
+          <span>Navigate:</span>
+          <kbd class="kbd">j</kbd><kbd class="kbd">k</kbd>
+          <span>Page:</span>
+          <kbd class="kbd">h</kbd><kbd class="kbd">l</kbd>
+        </div>
+        <ThemeToggle />
+      </div>
+    </header>
+
+    <main>
+      <article class="content">
+        <slot />
+      </article>
+      <PrevNext prev={prev} next={next} />
+    </main>
+
+    <!-- Teleport: Vim keybindings for navigation -->
+    <Teleport
+      itemSelector=".nav-item"
+      contentSelector="main"
+      sidebarSelector=".sidebar"
+    />
+
+    <script>
+      // Mobile hamburger menu toggle
+      function initMobileNav() {
+        const hamburger = document.getElementById('hamburger');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+
+        function toggleSidebar() {
+          sidebar?.classList.toggle('open');
+          overlay?.classList.toggle('open');
+        }
+
+        function closeSidebar() {
+          sidebar?.classList.remove('open');
+          overlay?.classList.remove('open');
+        }
+
+        hamburger?.addEventListener('click', toggleSidebar);
+        overlay?.addEventListener('click', closeSidebar);
+
+        // Close sidebar when clicking a link (mobile)
+        sidebar?.querySelectorAll('a').forEach(link => {
+          link.addEventListener('click', closeSidebar);
+        });
+      }
+
+      // Auto-expand collapsed sections when vim navigation highlights an item inside them
+      function initAutoExpand() {
+        // Use MutationObserver to detect when teleport-highlight class is added
+        const observer = new MutationObserver((mutations) => {
+          mutations.forEach((mutation) => {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+              const target = mutation.target as Element;
+              if (target.classList.contains('teleport-highlight')) {
+                // Find parent nav-section
+                const section = target.closest('.nav-section');
+                if (section && section.getAttribute('data-open') !== 'true') {
+                  section.setAttribute('data-open', 'true');
+                }
+              }
+            }
+          });
+        });
+
+        // Observe all nav items for class changes
+        document.querySelectorAll('.nav-item').forEach((item) => {
+          observer.observe(item, { attributes: true, attributeFilter: ['class'] });
+        });
+
+        return () => observer.disconnect();
+      }
+
+      // Initialize
+      initMobileNav();
+      let cleanupAutoExpand = initAutoExpand();
+
+      // Re-initialize after Astro page transitions
+      document.addEventListener('astro:after-swap', () => {
+        initMobileNav();
+        if (cleanupAutoExpand) cleanupAutoExpand();
+        cleanupAutoExpand = initAutoExpand();
+      });
+    </script>
+  </body>
+</html>

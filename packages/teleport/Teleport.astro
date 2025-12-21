@@ -2,242 +2,92 @@
 /**
  * Teleport - Vim-style keyboard navigation for Astro sites.
  *
- * Provides j/k navigation in sidebar, Ctrl+d/u for content scroll,
- * h/l for prev/next page, and t for fuzzy finder.
+ * A thin Astro wrapper around createTeleport(). For vanilla JS usage,
+ * import createTeleport directly from '@sailkit-dev/teleport'.
  */
 interface Props {
   /** CSS selector for navigable items (default: '.nav-item') */
   itemSelector?: string;
-  /** CSS selector for content container (default: 'main') */
-  contentSelector?: string;
-  /** CSS selector for sidebar container (default: '.sidebar') */
+  /** CSS selector for sidebar container (enables visibility-aware navigation) */
   sidebarSelector?: string;
   /** Class to add to highlighted item (default: 'teleport-highlight') */
   highlightClass?: string;
-  /** Enable fuzzy finder (requires onOpenFinder callback) */
-  enableFinder?: boolean;
+  /** Enable wrapping at ends (default: true) */
+  wrap?: boolean;
+  /** What to do when j/k/Enter pressed while sidebar hidden (default: 'ignore') */
+  whenHidden?: 'ignore' | 'show-sidebar';
+  /** Media query to detect desktop mode where arrows pass through (default: '(min-width: 769px)') */
+  desktopMediaQuery?: string;
 }
 
 const {
   itemSelector = '.nav-item',
-  contentSelector = 'main',
-  sidebarSelector = '.sidebar',
+  sidebarSelector,
   highlightClass = 'teleport-highlight',
-  enableFinder = false,
+  wrap = true,
+  whenHidden = 'ignore',
+  desktopMediaQuery = '(min-width: 769px)',
 } = Astro.props;
 ---
 
-<style is:global define:vars={{ highlightClass }}>
-  .teleport-highlight {
-    outline: 2px solid var(--color-accent, #3b82f6);
-    outline-offset: -2px;
-    background-color: var(--color-accent-dim, rgba(59, 130, 246, 0.1));
+<teleport-config
+  data-item-selector={itemSelector}
+  data-sidebar-selector={sidebarSelector}
+  data-highlight-class={highlightClass}
+  data-wrap={wrap.toString()}
+  data-when-hidden={whenHidden}
+  data-desktop-media-query={desktopMediaQuery}
+  style="display: none;"
+></teleport-config>
+
+<script>
+  import { createTeleport, type TeleportInstance, type WhenHiddenBehavior, type BreakpointMode } from './src/index.js';
+
+  let teleport: TeleportInstance | null = null;
+  let mediaQuery: MediaQueryList | null = null;
+
+  function setupTeleport(): TeleportInstance | null {
+    const configEl = document.querySelector('teleport-config');
+    if (!configEl) return null;
+
+    const itemSelector = configEl.getAttribute('data-item-selector') || '.nav-item';
+    const sidebarSelector = configEl.getAttribute('data-sidebar-selector') || undefined;
+    const highlightClass = configEl.getAttribute('data-highlight-class') || 'teleport-highlight';
+    const wrap = configEl.getAttribute('data-wrap') !== 'false';
+    const whenHidden = (configEl.getAttribute('data-when-hidden') || 'ignore') as WhenHiddenBehavior;
+    const desktopMediaQuery = configEl.getAttribute('data-desktop-media-query') || '(min-width: 769px)';
+
+    // Detect breakpoint using media query
+    mediaQuery = window.matchMedia(desktopMediaQuery);
+    const breakpoint: BreakpointMode = mediaQuery.matches ? 'desktop' : 'mobile';
+
+    return createTeleport({
+      itemSelector,
+      sidebarSelector,
+      highlightClass,
+      wrap,
+      whenHidden,
+      breakpoint,
+    });
   }
-</style>
 
-<script
-  define:vars={{
-    itemSelector,
-    contentSelector,
-    sidebarSelector,
-    highlightClass,
-    enableFinder,
-  }}
->
-  function initTeleport() {
-    // DOM elements
-    const items = () => Array.from(document.querySelectorAll(itemSelector));
-    const content = document.querySelector(contentSelector) || document.documentElement;
-    const sidebar = document.querySelector(sidebarSelector);
-
-    // State
-    let currentIndex = -1;
-
-    // Helpers
-    function clearHighlight() {
-      items().forEach((item) => item.classList.remove(highlightClass));
-    }
-
-    function highlight(index) {
-      clearHighlight();
-      const allItems = items();
-      if (index >= 0 && index < allItems.length) {
-        currentIndex = index;
-        const item = allItems[index];
-        item.classList.add(highlightClass);
-        item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
-    }
-
-    function next() {
-      const allItems = items();
-      if (allItems.length === 0) return;
-      if (currentIndex < 0) {
-        highlight(0);
-      } else {
-        highlight((currentIndex + 1) % allItems.length);
-      }
-    }
-
-    function prev() {
-      const allItems = items();
-      if (allItems.length === 0) return;
-      if (currentIndex < 0) {
-        highlight(allItems.length - 1);
-      } else {
-        highlight((currentIndex - 1 + allItems.length) % allItems.length);
-      }
-    }
-
-    function scrollContent(direction) {
-      const amount = window.innerHeight / 2;
-      content.scrollBy({
-        top: direction === 'down' ? amount : -amount,
-        behavior: 'smooth',
-      });
-    }
-
-    function selectCurrent() {
-      const allItems = items();
-      if (currentIndex >= 0 && currentIndex < allItems.length) {
-        const item = allItems[currentIndex];
-        const href = item.getAttribute('href');
-        if (href) {
-          window.location.href = href;
-        }
-      }
-    }
-
-    function findNextPage() {
-      const allItems = items();
-      // Find current page in nav
-      const currentPath = window.location.pathname;
-      const pageIndex = allItems.findIndex(
-        (item) => item.getAttribute('href') === currentPath
-      );
-      if (pageIndex !== -1 && pageIndex < allItems.length - 1) {
-        const nextHref = allItems[pageIndex + 1].getAttribute('href');
-        if (nextHref) window.location.href = nextHref;
-      }
-    }
-
-    function findPrevPage() {
-      const allItems = items();
-      const currentPath = window.location.pathname;
-      const pageIndex = allItems.findIndex(
-        (item) => item.getAttribute('href') === currentPath
-      );
-      if (pageIndex > 0) {
-        const prevHref = allItems[pageIndex - 1].getAttribute('href');
-        if (prevHref) window.location.href = prevHref;
-      }
-    }
-
-    function isTyping(event) {
-      const target = event.target;
-      if (!target) return false;
-      const tagName = target.tagName.toLowerCase();
-      if (tagName === 'input' || tagName === 'textarea') return true;
-      if (target.isContentEditable || target.getAttribute('contenteditable') === 'true') {
-        return true;
-      }
-      return false;
-    }
-
-    // Keyboard handler
-    function handleKeydown(event) {
-      if (isTyping(event)) return;
-
-      const key = event.key.toLowerCase();
-
-      // j/k or arrows - nav items
-      if (key === 'j' || key === 'arrowdown') {
-        event.preventDefault();
-        next();
-        return;
-      }
-      if (key === 'k' || key === 'arrowup') {
-        event.preventDefault();
-        prev();
-        return;
-      }
-
-      // Ctrl+d/u - scroll content
-      if (event.ctrlKey && key === 'd') {
-        event.preventDefault();
-        scrollContent('down');
-        return;
-      }
-      if (event.ctrlKey && key === 'u') {
-        event.preventDefault();
-        scrollContent('up');
-        return;
-      }
-
-      // h/l or arrows - prev/next page
-      if (key === 'l' || key === 'arrowright') {
-        event.preventDefault();
-        findNextPage();
-        return;
-      }
-      if (key === 'h' || key === 'arrowleft') {
-        event.preventDefault();
-        findPrevPage();
-        return;
-      }
-
-      // Enter - select
-      if (key === 'enter') {
-        event.preventDefault();
-        selectCurrent();
-        return;
-      }
-
-      // t - fuzzy finder
-      if (enableFinder && key === 't') {
-        event.preventDefault();
-        // Emit custom event for fuzzy finder
-        document.dispatchEvent(new CustomEvent('teleport:open-finder'));
-        return;
-      }
-
-      // Escape - clear
-      if (key === 'escape') {
-        clearHighlight();
-        currentIndex = -1;
-        return;
-      }
-    }
-
-    // Sync with current URL
-    function syncWithUrl() {
-      const allItems = items();
-      const currentPath = window.location.pathname;
-      const index = allItems.findIndex(
-        (item) => item.getAttribute('href') === currentPath
-      );
-      if (index !== -1) {
-        highlight(index);
-      }
-    }
-
-    // Initialize
-    document.addEventListener('keydown', handleKeydown);
-    syncWithUrl();
-
-    // Cleanup function for Astro transitions
-    return () => {
-      document.removeEventListener('keydown', handleKeydown);
-      clearHighlight();
-    };
+  function handleBreakpointChange(e: MediaQueryListEvent): void {
+    // Reinitialize teleport when breakpoint changes
+    teleport?.destroy();
+    teleport = setupTeleport();
   }
 
   // Run on initial load
-  let cleanup = initTeleport();
+  teleport = setupTeleport();
+
+  // Listen for breakpoint changes
+  mediaQuery?.addEventListener('change', handleBreakpointChange);
 
   // Re-run after Astro page transitions
   document.addEventListener('astro:after-swap', () => {
-    if (cleanup) cleanup();
-    cleanup = initTeleport();
+    mediaQuery?.removeEventListener('change', handleBreakpointChange);
+    teleport?.destroy();
+    teleport = setupTeleport();
+    mediaQuery?.addEventListener('change', handleBreakpointChange);
   });
 </script>

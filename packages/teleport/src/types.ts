@@ -3,28 +3,32 @@
  */
 
 /**
- * Key binding configuration - maps actions to key patterns.
- * Each action can have multiple keys that trigger it.
+ * Key binding configuration - maps directions to key patterns.
+ * Each direction can have multiple keys that trigger it.
  */
 export interface KeyBindings {
-  /** Navigate to next item in sidebar (default: ['j', 'ArrowDown']) */
-  nextItem?: string[];
-  /** Navigate to previous item in sidebar (default: ['k', 'ArrowUp']) */
-  prevItem?: string[];
+  /** Move down (default: ['j', 'ArrowDown']) */
+  down?: string[];
+  /** Move up (default: ['k', 'ArrowUp']) */
+  up?: string[];
+  /** Move left (default: ['h', 'ArrowLeft']) */
+  left?: string[];
+  /** Move right (default: ['l', 'ArrowRight']) */
+  right?: string[];
   /** Scroll content down (default: ['Ctrl+d']) */
   scrollDown?: string[];
   /** Scroll content up (default: ['Ctrl+u']) */
   scrollUp?: string[];
-  /** Go to next page (default: ['l', 'ArrowRight']) */
-  nextPage?: string[];
-  /** Go to previous page (default: ['h', 'ArrowLeft']) */
-  prevPage?: string[];
-  /** Select/navigate to current item (default: ['Enter']) */
+  /** Select/confirm (default: ['Enter']) */
   select?: string[];
-  /** Open fuzzy finder (default: ['t']) */
+  /** Toggle sidebar (default: ['t']) */
+  toggleSidebar?: string[];
+  /** Open fuzzy finder (default: ['/']) */
   openFinder?: string[];
-  /** Close/escape (default: ['Escape']) */
-  escape?: string[];
+  /** Go to top/first item (default: ['gg'] - vim sequence) */
+  goToTop?: string[];
+  /** Go to bottom/last item (default: ['G'] - Shift+g) */
+  goToBottom?: string[];
 }
 
 /**
@@ -39,19 +43,27 @@ export interface ParsedKey {
 }
 
 /**
+ * Callback that receives the keyboard event.
+ * Return true to preventDefault, false to let the event pass through.
+ */
+export type KeyCallback = (event: KeyboardEvent) => boolean | void;
+
+/**
  * Keyboard handler configuration
  */
 export interface KeyboardHandlerConfig {
   bindings?: KeyBindings;
-  onNextItem?: () => void;
-  onPrevItem?: () => void;
-  onScrollDown?: () => void;
-  onScrollUp?: () => void;
-  onNextPage?: () => void;
-  onPrevPage?: () => void;
-  onSelect?: () => void;
-  onOpenFinder?: () => void;
-  onEscape?: () => void;
+  onDown?: KeyCallback;
+  onUp?: KeyCallback;
+  onLeft?: KeyCallback;
+  onRight?: KeyCallback;
+  onScrollDown?: KeyCallback;
+  onScrollUp?: KeyCallback;
+  onSelect?: KeyCallback;
+  onToggleSidebar?: KeyCallback;
+  onOpenFinder?: KeyCallback;
+  onGoToTop?: KeyCallback;
+  onGoToBottom?: KeyCallback;
   /** Ignore keystrokes when typing in input/textarea (default: true) */
   ignoreWhenTyping?: boolean;
 }
@@ -67,75 +79,31 @@ export interface KeyboardHandler {
 }
 
 /**
- * DOM navigator configuration
- */
-export interface DOMNavigatorConfig {
-  /** Function to get navigable items */
-  getItems: () => HTMLElement[];
-  /** Class to add to highlighted item (default: 'teleport-highlight') */
-  highlightClass?: string;
-  /** Scroll behavior options */
-  scrollBehavior?: ScrollIntoViewOptions;
-  /** Callback when an item is selected */
-  onSelect?: (item: HTMLElement, index: number) => void;
-  /** Callback when highlight changes */
-  onHighlightChange?: (item: HTMLElement | null, index: number) => void;
-}
-
-/**
- * DOM navigator return type
- */
-export interface DOMNavigator {
-  /** Currently highlighted index (-1 if none) */
-  readonly currentIndex: number;
-  /** Currently highlighted element */
-  readonly currentItem: HTMLElement | null;
-  /** Total item count */
-  readonly count: number;
-  /** Move to next item */
-  next(): void;
-  /** Move to previous item */
-  prev(): void;
-  /** Go to specific index */
-  goTo(index: number): void;
-  /** Clear highlight */
-  clear(): void;
-  /** Refresh items list */
-  refresh(): void;
-}
-
-/**
  * Full teleport configuration
  */
 export interface TeleportConfig {
-  /** Selector for navigable items in sidebar */
-  itemSelector: string;
-  /** Container for scrolling content (default: document.documentElement) */
-  contentContainer?: HTMLElement | string;
-  /** Sidebar container for scrolling nav (default: first .sidebar) */
-  sidebarContainer?: HTMLElement | string;
-  /** Class to add to highlighted item */
-  highlightClass?: string;
   /** Custom key bindings */
   bindings?: KeyBindings;
-  /** Callback when item is selected */
-  onSelect?: (item: HTMLElement) => void;
-  /** Callback for next page navigation */
-  onNextPage?: () => void;
-  /** Callback for previous page navigation */
-  onPrevPage?: () => void;
-  /** Callback to open fuzzy finder */
+  /** Directional callbacks */
+  onDown?: () => void;
+  onUp?: () => void;
+  onLeft?: () => void;
+  onRight?: () => void;
+  /** Scroll callbacks */
+  onScrollDown?: () => void;
+  onScrollUp?: () => void;
+  /** Action callbacks */
+  onSelect?: () => void;
+  onToggleSidebar?: () => void;
   onOpenFinder?: () => void;
-  /** Scroll amount for Ctrl+d/u (default: half viewport) */
-  scrollAmount?: number;
+  /** Ignore keystrokes when typing in input/textarea (default: true) */
+  ignoreWhenTyping?: boolean;
 }
 
 /**
  * Teleport instance
  */
 export interface Teleport {
-  /** DOM navigator for sidebar items */
-  readonly navigator: DOMNavigator;
   /** Clean up all event listeners */
   destroy(): void;
 }

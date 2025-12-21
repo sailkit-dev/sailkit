@@ -1,32 +1,27 @@
 /**
- * Teleport - Vim-style keyboard navigation bindings
+ * Teleport - Vim-style keyboard bindings
  *
- * Three layers of abstraction:
- * - Layer 1: Pure key binding functions (keys.ts)
- * - Layer 2: DOM adapter for highlighting/scrolling (dom.ts)
- * - Layer 3: Full integration (teleport.ts)
+ * A thin layer that maps keypresses to directional callbacks.
+ * No navigation state - use @sailkit-dev/compass for that.
  *
  * @example
  * ```typescript
- * // Layer 3: Full integration (most common)
- * import { initTeleport } from '@sailkit/teleport';
+ * // Standalone - just key bindings
+ * import { initTeleport } from '@sailkit-dev/teleport';
  *
  * const teleport = initTeleport({
- *   itemSelector: '.nav-item',
- *   onNextPage: () => navigate('next'),
- *   onPrevPage: () => navigate('prev'),
+ *   onDown: () => console.log('down'),
+ *   onUp: () => console.log('up'),
  * });
  *
- * // Layer 1 + 2: Custom integration
- * import { createKeyboardHandler, createDOMNavigator } from '@sailkit/teleport';
+ * // With compass for navigation state
+ * import { initTeleport } from '@sailkit-dev/teleport';
+ * import { createNavigator } from '@sailkit-dev/compass';
  *
- * const navigator = createDOMNavigator({
- *   getItems: () => document.querySelectorAll('.item'),
- * });
- *
- * const keyHandler = createKeyboardHandler({
- *   onNextItem: () => navigator.next(),
- *   onPrevItem: () => navigator.prev(),
+ * const nav = createNavigator({ items: ['a', 'b', 'c'], wrap: false });
+ * const teleport = initTeleport({
+ *   onDown: () => nav.next(),
+ *   onUp: () => nav.prev(),
  * });
  * ```
  */
@@ -37,15 +32,11 @@ export type {
   ParsedKey,
   KeyboardHandlerConfig,
   KeyboardHandler,
-  DOMNavigatorConfig,
-  DOMNavigator,
   TeleportConfig,
   Teleport,
-  FinderItem,
-  FuzzyFinderConfig,
 } from './types.js';
 
-// Layer 1: Key bindings
+// Key binding utilities
 export {
   DEFAULT_BINDINGS,
   parseKey,
@@ -55,13 +46,17 @@ export {
   createKeyboardHandler,
 } from './keys.js';
 
-// Layer 2: DOM adapter
-export {
-  createDOMNavigator,
-  scrollElement,
-  getViewportHeight,
-  syncWithCurrentPath,
-} from './dom.js';
+// DOM utilities
+export { scrollElement, getViewportHeight } from './dom.js';
 
-// Layer 3: Full integration
-export { initTeleport, injectTeleportStyles } from './teleport.js';
+// Main entry point
+export { initTeleport } from './teleport.js';
+
+// DOM Navigator (batteries-included)
+export {
+  createTeleport,
+  type CreateTeleportConfig,
+  type TeleportInstance,
+  type WhenHiddenBehavior,
+  type BreakpointMode,
+} from './navigator.js';

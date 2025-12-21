@@ -24,6 +24,7 @@ export function createNavigator(config: NavigatorConfig): Navigator {
   const { items, wrap = true, leavesOnly = false, onChange } = config;
 
   const flatList = buildFlatList(items, leavesOnly);
+  // Start at index 0 if items exist, otherwise -1 (empty list)
   let currentIdx = flatList.length > 0 ? 0 : -1;
 
   function getCurrent(): InternalNode | null {

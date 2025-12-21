@@ -1,11 +1,6 @@
-# Dependencies
-node_modules/
-
-# Build output
-dist/
-
-# Lock files (using npm)
-package-lock.json
-
-# OS files
-.DS_Store
+.astro
+test-results
+node_modules
+dist
+playwright-report
+.turbo
