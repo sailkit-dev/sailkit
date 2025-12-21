@@ -3,17 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Teleport Scroll Fallback Test Fixture</title>
+  <title>Teleport Scroll Test Fixture</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      min-height: 300vh; /* Make body scrollable */
-      font-family: system-ui, sans-serif;
+      min-height: 3000px; /* Make page scrollable */
     }
     .sidebar {
       position: fixed;
-      left: 0;
       top: 0;
+      left: 0;
       width: 200px;
       height: 100vh;
       overflow-y: auto;
@@ -26,12 +25,12 @@
       text-decoration: none;
       color: #333;
     }
-    .main-content {
+    main {
       margin-left: 200px;
       padding: 20px;
     }
     .content-block {
-      height: 400px;
+      height: 500px;
       padding: 20px;
       border-bottom: 1px solid #ccc;
     }
@@ -50,27 +49,20 @@
     <a href="#2" class="nav-item">Item 2</a>
     <a href="#3" class="nav-item">Item 3</a>
   </nav>
-  <div class="main-content">
-    <div class="content-block">Block 1 - Window scroll fallback test</div>
+  <main>
+    <div class="content-block">Block 1 - Scroll test content</div>
     <div class="content-block">Block 2</div>
     <div class="content-block">Block 3</div>
     <div class="content-block">Block 4</div>
     <div class="content-block">Block 5</div>
-    <div class="content-block">Block 6</div>
-  </div>
+  </main>
   <script type="module">
-    import { initTeleport, scrollElement, getViewportHeight } from '/packages/teleport/dist/index.js';
+    import { createTeleport } from '/packages/teleport/dist/index.js';
 
-    // No contentContainer - fallback to window scroll
-    window.teleport = initTeleport({
+    window.teleport = createTeleport({
       itemSelector: '.nav-item',
+      sidebarSelector: '.sidebar',
       highlightClass: 'teleport-highlight',
-      onScrollDown: () => {
-        window.scrollBy({ top: getViewportHeight() / 2, behavior: 'smooth' });
-      },
-      onScrollUp: () => {
-        window.scrollBy({ top: -getViewportHeight() / 2, behavior: 'smooth' });
-      },
     });
   </script>
 </body>

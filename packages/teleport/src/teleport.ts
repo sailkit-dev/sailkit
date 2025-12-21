@@ -40,8 +40,8 @@ export function initTeleport(config: TeleportConfig): Teleport {
     onScrollDown,
     onScrollUp,
     onSelect,
+    onToggleSidebar,
     onOpenFinder,
-    onEscape,
     ignoreWhenTyping = true,
   } = config;
 
@@ -55,8 +55,8 @@ export function initTeleport(config: TeleportConfig): Teleport {
     onScrollDown,
     onScrollUp,
     onSelect,
+    onToggleSidebar,
     onOpenFinder,
-    onEscape,
     ignoreWhenTyping,
   });
 
@@ -75,22 +75,3 @@ export function initTeleport(config: TeleportConfig): Teleport {
   };
 }
 
-/**
- * Inject CSS for teleport highlight styling.
- * Call this once to add default styles, or provide your own CSS.
- */
-export function injectTeleportStyles(highlightClass: string = 'teleport-highlight'): void {
-  const styleId = 'teleport-styles';
-  if (document.getElementById(styleId)) return;
-
-  const style = document.createElement('style');
-  style.id = styleId;
-  style.textContent = `
-    .${highlightClass} {
-      outline: 2px solid var(--color-accent, #3b82f6);
-      outline-offset: -2px;
-      background-color: var(--color-accent-dim, rgba(59, 130, 246, 0.1));
-    }
-  `;
-  document.head.appendChild(style);
-}

@@ -3,3 +3,4 @@ test-results
 node_modules
 dist
 playwright-report
+.turbo

@@ -21,10 +21,14 @@ export interface KeyBindings {
   scrollUp?: string[];
   /** Select/confirm (default: ['Enter']) */
   select?: string[];
-  /** Open fuzzy finder (default: ['t']) */
+  /** Toggle sidebar (default: ['t']) */
+  toggleSidebar?: string[];
+  /** Open fuzzy finder (default: ['/']) */
   openFinder?: string[];
-  /** Close/escape (default: ['Escape']) */
-  escape?: string[];
+  /** Go to top/first item (default: ['gg'] - vim sequence) */
+  goToTop?: string[];
+  /** Go to bottom/last item (default: ['G'] - Shift+g) */
+  goToBottom?: string[];
 }
 
 /**
@@ -39,19 +43,27 @@ export interface ParsedKey {
 }
 
 /**
+ * Callback that receives the keyboard event.
+ * Return true to preventDefault, false to let the event pass through.
+ */
+export type KeyCallback = (event: KeyboardEvent) => boolean | void;
+
+/**
  * Keyboard handler configuration
  */
 export interface KeyboardHandlerConfig {
   bindings?: KeyBindings;
-  onDown?: () => void;
-  onUp?: () => void;
-  onLeft?: () => void;
-  onRight?: () => void;
-  onScrollDown?: () => void;
-  onScrollUp?: () => void;
-  onSelect?: () => void;
-  onOpenFinder?: () => void;
-  onEscape?: () => void;
+  onDown?: KeyCallback;
+  onUp?: KeyCallback;
+  onLeft?: KeyCallback;
+  onRight?: KeyCallback;
+  onScrollDown?: KeyCallback;
+  onScrollUp?: KeyCallback;
+  onSelect?: KeyCallback;
+  onToggleSidebar?: KeyCallback;
+  onOpenFinder?: KeyCallback;
+  onGoToTop?: KeyCallback;
+  onGoToBottom?: KeyCallback;
   /** Ignore keystrokes when typing in input/textarea (default: true) */
   ignoreWhenTyping?: boolean;
 }
@@ -82,8 +94,8 @@ export interface TeleportConfig {
   onScrollUp?: () => void;
   /** Action callbacks */
   onSelect?: () => void;
+  onToggleSidebar?: () => void;
   onOpenFinder?: () => void;
-  onEscape?: () => void;
   /** Ignore keystrokes when typing in input/textarea (default: true) */
   ignoreWhenTyping?: boolean;
 }

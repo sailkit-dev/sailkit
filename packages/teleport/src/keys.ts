@@ -23,8 +23,10 @@ export const DEFAULT_BINDINGS: Required<KeyBindings> = {
   scrollDown: ['Ctrl+d'],
   scrollUp: ['Ctrl+u'],
   select: ['Enter'],
-  openFinder: ['t'],
-  escape: ['Escape'],
+  toggleSidebar: ['t'],
+  openFinder: ['/'],
+  goToTop: ['gg'],      // vim sequence: g followed by g
+  goToBottom: ['Shift+g'],  // vim: G (capital G)
 };
 
 /**
@@ -199,6 +201,30 @@ export function isTypingContext(event: KeyboardEvent): boolean {
 }
 
 /**
+ * Check if a binding pattern is a key sequence (e.g., 'gg')
+ */
+function isSequencePattern(pattern: string): boolean {
+  // A sequence is 2+ identical characters with no modifiers
+  return pattern.length >= 2 && !pattern.includes('+') && new Set(pattern).size === 1;
+}
+
+/**
+ * Check if any patterns in the list are sequences
+ */
+function hasSequenceBinding(patterns: string[]): boolean {
+  return patterns.some(isSequencePattern);
+}
+
+/**
+ * Get the sequence key and length from patterns
+ */
+function getSequenceInfo(patterns: string[]): { key: string; length: number } | null {
+  const seqPattern = patterns.find(isSequencePattern);
+  if (!seqPattern) return null;
+  return { key: seqPattern[0].toLowerCase(), length: seqPattern.length };
+}
+
+/**
  * Create a keyboard handler that maps key events to directional callbacks.
  */
 export function createKeyboardHandler(
@@ -213,8 +239,10 @@ export function createKeyboardHandler(
     onScrollDown,
     onScrollUp,
     onSelect,
+    onToggleSidebar,
     onOpenFinder,
-    onEscape,
+    onGoToTop,
+    onGoToBottom,
     ignoreWhenTyping = true,
   } = config;
 
@@ -223,67 +251,139 @@ export function createKeyboardHandler(
     ...bindings,
   };
 
+  // Sequence state for tracking multi-key patterns like 'gg'
+  let pendingSequenceKey: string | null = null;
+  let pendingSequenceCount = 0;
+  let sequenceTimeout: ReturnType<typeof setTimeout> | null = null;
+  const SEQUENCE_TIMEOUT_MS = 500;
+
+  function resetSequence(): void {
+    pendingSequenceKey = null;
+    pendingSequenceCount = 0;
+    if (sequenceTimeout) {
+      clearTimeout(sequenceTimeout);
+      sequenceTimeout = null;
+    }
+  }
+
+  /**
+   * Call a callback and preventDefault if it returns true (or undefined for backwards compat)
+   */
+  function callHandler(event: KeyboardEvent, callback: (event: KeyboardEvent) => boolean | void): boolean {
+    const result = callback(event);
+    // preventDefault unless callback explicitly returns false
+    if (result !== false) {
+      event.preventDefault();
+    }
+    return true;
+  }
+
+  /**
+   * Check for sequence matches (like 'gg')
+   */
+  function checkSequence(event: KeyboardEvent, patterns: string[], callback: (event: KeyboardEvent) => boolean | void): boolean {
+    if (!hasSequenceBinding(patterns)) return false;
+
+    const seqInfo = getSequenceInfo(patterns);
+    if (!seqInfo) return false;
+
+    const eventKey = event.key.toLowerCase();
+
+    // Must be the sequence key with no modifiers
+    if (eventKey !== seqInfo.key || event.ctrlKey || event.altKey || event.metaKey || event.shiftKey) {
+      resetSequence();
+      return false;
+    }
+
+    // Start or continue sequence
+    if (pendingSequenceKey === seqInfo.key) {
+      pendingSequenceCount++;
+    } else {
+      pendingSequenceKey = seqInfo.key;
+      pendingSequenceCount = 1;
+    }
+
+    // Reset timeout
+    if (sequenceTimeout) clearTimeout(sequenceTimeout);
+    sequenceTimeout = setTimeout(resetSequence, SEQUENCE_TIMEOUT_MS);
+
+    // Check if sequence is complete
+    if (pendingSequenceCount >= seqInfo.length) {
+      resetSequence();
+      return callHandler(event, callback);
+    }
+
+    // Sequence in progress - consume the key
+    event.preventDefault();
+    return true;
+  }
+
   function handleKeydown(event: KeyboardEvent): boolean {
     // Skip if typing in input/textarea
     if (ignoreWhenTyping && isTypingContext(event)) {
       return false;
     }
 
+    // Check sequence bindings first (like 'gg')
+    if (onGoToTop && checkSequence(event, mergedBindings.goToTop, onGoToTop)) {
+      return true;
+    }
+
+    // Single 'g' without modifiers might be start of sequence - don't process other bindings
+    const eventKey = event.key.toLowerCase();
+    if (eventKey === 'g' && !event.ctrlKey && !event.altKey && !event.metaKey && !event.shiftKey) {
+      if (hasSequenceBinding(mergedBindings.goToTop)) {
+        // Already handled by checkSequence above, just return
+        return true;
+      }
+    }
+
     // Directional bindings
     if (onDown && matchesAnyKey(event, mergedBindings.down)) {
-      event.preventDefault();
-      onDown();
-      return true;
+      return callHandler(event, onDown);
     }
 
     if (onUp && matchesAnyKey(event, mergedBindings.up)) {
-      event.preventDefault();
-      onUp();
-      return true;
+      return callHandler(event, onUp);
     }
 
     if (onLeft && matchesAnyKey(event, mergedBindings.left)) {
-      event.preventDefault();
-      onLeft();
-      return true;
+      return callHandler(event, onLeft);
     }
 
     if (onRight && matchesAnyKey(event, mergedBindings.right)) {
-      event.preventDefault();
-      onRight();
-      return true;
+      return callHandler(event, onRight);
     }
 
     // Scroll bindings
     if (onScrollDown && matchesAnyKey(event, mergedBindings.scrollDown)) {
-      event.preventDefault();
-      onScrollDown();
-      return true;
+      return callHandler(event, onScrollDown);
     }
 
     if (onScrollUp && matchesAnyKey(event, mergedBindings.scrollUp)) {
-      event.preventDefault();
-      onScrollUp();
-      return true;
+      return callHandler(event, onScrollUp);
     }
 
     // Action bindings
     if (onSelect && matchesAnyKey(event, mergedBindings.select)) {
-      event.preventDefault();
-      onSelect();
-      return true;
+      return callHandler(event, onSelect);
+    }
+
+    if (onToggleSidebar && matchesAnyKey(event, mergedBindings.toggleSidebar)) {
+      return callHandler(event, onToggleSidebar);
     }
 
     if (onOpenFinder && matchesAnyKey(event, mergedBindings.openFinder)) {
-      event.preventDefault();
-      onOpenFinder();
-      return true;
+      return callHandler(event, onOpenFinder);
     }
 
-    if (onEscape && matchesAnyKey(event, mergedBindings.escape)) {
-      event.preventDefault();
-      onEscape();
-      return true;
+    // Go to top/bottom (non-sequence patterns like Shift+g)
+    if (onGoToTop && matchesAnyKey(event, mergedBindings.goToTop.filter(p => !isSequencePattern(p)))) {
+      return callHandler(event, onGoToTop);
+    }
+
+    if (onGoToBottom && matchesAnyKey(event, mergedBindings.goToBottom)) {
+      return callHandler(event, onGoToBottom);
     }
 
     return false;
@@ -292,7 +392,7 @@ export function createKeyboardHandler(
   return {
     handleKeydown,
     destroy: () => {
-      // No cleanup needed for pure handler
+      resetSequence();
     },
   };
 }
