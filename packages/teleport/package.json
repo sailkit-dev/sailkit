@@ -1,5 +1,5 @@
 {
-  "name": "@bearing-dev/teleport",
+  "name": "@sailkit/teleport",
   "version": "0.0.1",
   "description": "Vim-style keyboard navigation bindings with DOM integration",
   "type": "module",
@@ -25,7 +25,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@bearing-dev/compass": ">=0.0.1"
+    "@sailkit/compass": "*"
   },
   "devDependencies": {
     "@playwright/test": "^1.57.0",

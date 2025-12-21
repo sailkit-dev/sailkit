@@ -2,12 +2,12 @@
  * Teleport - Vim-style keyboard bindings
  *
  * A thin layer that maps keypresses to directional callbacks.
- * No navigation state - use @bearing-dev/compass for that.
+ * No navigation state - use @sailkit/compass for that.
  *
  * @example
  * ```typescript
  * // Standalone - just key bindings
- * import { initTeleport } from '@bearing-dev/teleport';
+ * import { initTeleport } from '@sailkit/teleport';
  *
  * const teleport = initTeleport({
  *   onDown: () => console.log('down'),
@@ -15,8 +15,8 @@
  * });
  *
  * // With compass for navigation state
- * import { initTeleport } from '@bearing-dev/teleport';
- * import { createNavigator } from '@bearing-dev/compass';
+ * import { initTeleport } from '@sailkit/teleport';
+ * import { createNavigator } from '@sailkit/compass';
  *
  * const nav = createNavigator({ items: ['a', 'b', 'c'], wrap: false });
  * const teleport = initTeleport({

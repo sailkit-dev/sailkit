@@ -1,4 +1,4 @@
-# @bearing-dev/lantern
+# @sailkit/lantern
 
 Theme toggle with flash-free hydration.
 
@@ -6,8 +6,8 @@ Theme toggle with flash-free hydration.
 
 ```astro
 ---
-import { initScript } from '@bearing-dev/lantern';
-import ThemeToggle from '@bearing-dev/lantern/ThemeToggle.astro';
+import { initScript } from '@sailkit/lantern';
+import ThemeToggle from '@sailkit/lantern/ThemeToggle.astro';
 ---
 <html>
   <head>
@@ -22,7 +22,7 @@ import ThemeToggle from '@bearing-dev/lantern/ThemeToggle.astro';
 ## API
 
 ```typescript
-import { initTheme, toggleTheme, getTheme } from '@bearing-dev/lantern';
+import { initTheme, toggleTheme, getTheme } from '@sailkit/lantern';
 
 initTheme();       // restore from localStorage
 toggleTheme();     // dark <-> light
@@ -66,8 +66,8 @@ Include `initScript` before paint to prevent flash of wrong theme:
 ## Optional Example CSS
 
 ```typescript
-import '@bearing-dev/lantern/theme-dark.css';
-import '@bearing-dev/lantern/theme-light.css';
+import '@sailkit/lantern/theme-dark.css';
+import '@sailkit/lantern/theme-light.css';
 ```
 
 These are minimal examples. Override with your own theme CSS.

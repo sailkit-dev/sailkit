@@ -5,7 +5,7 @@ export default defineConfig({
   format: ['esm'],
   dts: true,
   clean: true,
-  noExternal: ['@bearing-dev/compass'],
+  noExternal: ['@sailkit/compass'],
   target: 'es2020',
   minify: false,
   sourcemap: true,

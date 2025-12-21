@@ -1,5 +1,5 @@
 {
-  "name": "@bearing-dev/lantern",
+  "name": "@sailkit/lantern",
   "version": "0.1.0",
   "description": "Theme toggle with flash-free hydration",
   "type": "module",

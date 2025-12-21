@@ -5,58 +5,133 @@ description: Extract and test code from markdown documentation.
 
 # Scribe
 
-Extract and test code from markdown documentation.
+**@sailkit/scribe** extracts and tests code from markdown documentation. Ensure your documentation examples actually work.
 
-> **Status**: Planned — not yet implemented
+## Installation
 
-## The Problem
-
-Documentation code examples drift out of sync with actual APIs. AI assistants and humans alike write examples that look plausible but don't compile or run correctly. Traditional testing ignores documentation entirely.
-
-## The Solution
-
-Scribe treats code fences as testable units:
-
-```typescript
-import { extractCodeBlocks, testCodeBlocks } from '@sailkit/scribe';
-
-const blocks = await extractCodeBlocks('./docs/**/*.md');
-const results = await testCodeBlocks(blocks);
-
-results.forEach(result => {
-  if (!result.passed) {
-    console.error(`Failed: ${result.file}:${result.line}`);
-  }
-});
+```bash nocheck
+npm install @sailkit/scribe
 ```
 
-## Features
+## CLI Usage
 
-### Language-Aware Execution
+```bash nocheck
+# Test a single file
+npx scribe README.md
 
-Different strategies for different code blocks:
+# Test all markdown files in a directory
+npx scribe docs/
 
-- **TypeScript/JavaScript**: Transpile and execute
-- **Bash**: Execute in shell, verify exit code
-- **JSON**: Parse and validate structure
-- **Custom**: Register your own runners
+# Run tests sequentially (no parallelism)
+npx scribe docs/ --runInBand
 
-### Skip Patterns
+# Set number of parallel workers
+npx scribe docs/ --parallel 4
+```
 
-Mark blocks that shouldn't be tested:
+## How It Works
 
-````markdown
-```typescript skip
+1. Scribe parses markdown files for code fences
+2. JavaScript and TypeScript blocks are extracted
+3. Each block is bundled with esbuild and executed in a VM sandbox
+4. Results are reported with pass/fail status
+
+## Opting Out
+
+Mark blocks that shouldn't be tested with `nocheck`:
+
+````markdown nocheck
+```typescript nocheck
 // This example is intentionally incomplete
 const partial =
 ```
 ````
 
-### CI Integration
+## Programmatic API
 
-```bash
-npx scribe test ./docs/**/*.md --fail-fast
+```typescript
+import { parseMarkdown, filterTestableBlocks, runBlocks } from '@sailkit/scribe';
+
+const content = `
+# Example
+
+\`\`\`typescript
+const x = 1;
+assert(x === 1);
+\`\`\`
+`;
+
+const blocks = parseMarkdown(content, 'example.md');
+const testable = filterTestableBlocks(blocks);
+const results = await runBlocks(testable);
+
+results.forEach(result => {
+  console.log(result.passed ? 'PASS' : 'FAIL', result.block.file);
+});
 ```
+
+## API Reference
+
+### parseMarkdown(content, filename)
+
+Extracts all code blocks from markdown content.
+
+```typescript nocheck
+import { parseMarkdown } from '@sailkit/scribe';
+
+const blocks = parseMarkdown(markdownContent, 'file.md');
+// Returns: CodeBlock[]
+```
+
+### filterTestableBlocks(blocks)
+
+Filters to only JS/TS blocks without `nocheck`.
+
+```typescript nocheck
+import { filterTestableBlocks } from '@sailkit/scribe';
+
+const testable = filterTestableBlocks(blocks);
+// Returns blocks that should be tested
+```
+
+### runBlocks(blocks)
+
+Executes code blocks and returns results.
+
+```typescript nocheck
+import { runBlocks } from '@sailkit/scribe';
+
+const results = await runBlocks(blocks);
+// Returns: RunResult[]
+```
+
+### runBlock(block)
+
+Execute a single code block.
+
+```typescript nocheck
+import { runBlock } from '@sailkit/scribe';
+
+const result = await runBlock(block);
+// Returns: RunResult
+```
+
+## Features
+
+- **TypeScript support**: Blocks are transpiled with esbuild
+- **Import support**: Code can use npm packages (bundled automatically)
+- **Global assert**: Node's `assert` module is available without imports
+- **Parallel execution**: Tests run concurrently by default
+- **No disk writes**: Everything runs in memory (safe for read-only filesystems)
+- **TTY-aware output**: Interactive spinner for terminals, clean output for CI
+
+## Supported Languages
+
+Scribe tests blocks marked as:
+- `typescript` / `ts`
+- `javascript` / `js`
+
+Other language blocks are ignored.
 
 ## Use Cases
 
@@ -65,14 +140,6 @@ npx scribe test ./docs/**/*.md --fail-fast
 - **Documentation audits**: Find stale examples across a codebase
 - **Tutorial validation**: Ensure learning materials work
 
-## Philosophy
+## Related
 
-Documentation is code. Code should be tested. Therefore documentation should be tested.
-
-## Dogfooding Opportunity
-
-This documentation site itself contains dozens of code examples. Once Scribe is implemented, we can use it to verify that all the examples in these docs actually work.
-
-## Learn More
-
-See the full design specification in the [scribe package README](https://github.com/joshribakoff/sailkit/tree/scribe-codefence-testing/packages/scribe).
+- [[architecture]] - How Scribe fits into the larger system
