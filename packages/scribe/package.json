@@ -20,12 +20,14 @@
   ],
   "license": "MIT",
   "devDependencies": {
+    "@types/jsdom": "^27.0.0",
     "typescript": "^5.0.0",
     "vitest": "^4.0.15"
   },
   "dependencies": {
     "commander": "^14.0.2",
     "esbuild": "^0.27.1",
+    "jsdom": "^25.0.1",
     "log-update": "^7.0.2"
   }
 }
