@@ -5,19 +5,17 @@ description: Vim-style keyboard navigation bindings with DOM integration.
 
 # Teleport
 
-**@sailkit/teleport** provides Vim-style keyboard navigation with DOM integration. Use the high-level `createTeleport` for full DOM navigation, or the lower-level `initTeleport` and `createKeyboardHandler` for custom integrations.
+**@sailkit-dev/teleport** provides Vim-style keyboard navigation with DOM integration. Use the high-level `createTeleport` for full DOM navigation, or the lower-level `initTeleport` and `createKeyboardHandler` for custom integrations.
 
 ## Installation
 
-```bash nocheck
-npm install @sailkit/teleport
-```
+See [[installation]] for setup instructions.
 
 ## Quick Start (Astro)
 
 ```astro nocheck
 ---
-import Teleport from '@sailkit/teleport/Teleport.astro';
+import Teleport from '@sailkit-dev/teleport/Teleport.astro';
 ---
 <html>
   <body>
@@ -54,7 +52,7 @@ import Teleport from '@sailkit/teleport/Teleport.astro';
 The batteries-included option - handles DOM scanning, highlighting, scrolling, and keyboard bindings:
 
 ```typescript nocheck
-import { createTeleport } from '@sailkit/teleport';
+import { createTeleport } from '@sailkit-dev/teleport';
 
 const teleport = createTeleport({
   itemSelector: '.nav-item',
@@ -85,8 +83,8 @@ teleport.destroy();
 Just the keyboard handling, you manage navigation state:
 
 ```typescript nocheck
-import { initTeleport } from '@sailkit/teleport';
-import { createNavigator } from '@sailkit/compass';
+import { initTeleport } from '@sailkit-dev/teleport';
+import { createNavigator } from '@sailkit-dev/compass';
 
 const nav = createNavigator({ items: ['a', 'b', 'c'], wrap: false });
 const teleport = initTeleport({
@@ -102,7 +100,7 @@ teleport.destroy();
 Low-level key binding without any navigation logic:
 
 ```typescript nocheck
-import { createKeyboardHandler, DEFAULT_BINDINGS } from '@sailkit/teleport';
+import { createKeyboardHandler, DEFAULT_BINDINGS } from '@sailkit-dev/teleport';
 
 const handler = createKeyboardHandler({
   bindings: DEFAULT_BINDINGS,
@@ -159,7 +157,7 @@ createTeleport({
 ## Custom Bindings
 
 ```typescript nocheck
-import { createKeyboardHandler } from '@sailkit/teleport';
+import { createKeyboardHandler } from '@sailkit-dev/teleport';
 
 createKeyboardHandler({
   bindings: {
@@ -193,7 +191,7 @@ Teleport adds the highlight class to the current item. You provide the styles:
 By default, key bindings are disabled when typing in text inputs:
 
 ```typescript nocheck
-import { isTypingContext } from '@sailkit/teleport';
+import { isTypingContext } from '@sailkit-dev/teleport';
 
 document.addEventListener('keydown', (e) => {
   if (isTypingContext(e)) {

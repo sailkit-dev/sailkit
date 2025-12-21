@@ -63,8 +63,8 @@ Spyglass normalizes these into a consistent interface and renders the UI.
 Build searchable items from your Compass navigation structure:
 
 ```typescript nocheck
-import { flattenSlugs } from '@sailkit/compass';
-import { Spyglass } from '@sailkit/spyglass';
+import { flattenSlugs } from '@sailkit-dev/compass';
+import { Spyglass } from '@sailkit-dev/spyglass';
 
 const slugs = flattenSlugs(navigation, true);
 const items = slugs.map(slug => ({
@@ -89,7 +89,7 @@ document.addEventListener('teleport:open-finder', () => {
 ## API Preview
 
 ```typescript nocheck
-import { createSpyglass } from '@sailkit/spyglass';
+import { createSpyglass } from '@sailkit-dev/spyglass';
 import Fuse from 'fuse.js';
 
 // Configure with your search engine

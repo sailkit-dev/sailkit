@@ -133,7 +133,7 @@ Use cases:
 Create a custom remark plugin to warn about missing targets:
 
 ```javascript nocheck
-import { remarkMagicLinks } from '@sailkit/atlas';
+import { remarkMagicLinks } from '@sailkit-dev/atlas';
 
 const validSlugs = new Set([
   'introduction',
@@ -166,7 +166,7 @@ Even with careful linking, users might still hit 404s. [[lighthouse]] catches th
 ```astro
 ---
 // 404.astro
-import NotFound from '@sailkit/lighthouse/NotFound.astro';
+import NotFound from '@sailkit-dev/lighthouse/NotFound.astro';
 const pages = await getCollection('docs');
 ---
 <NotFound pages={pages.map(p => ({ url: `/docs/${p.slug}/`, title: p.data.title }))} />
@@ -224,7 +224,7 @@ Link to relevant docs inline:
 Use [[compass|createNavigator()]] to manage state:
 
 \`\`\`typescript
-import { createNavigator } from '@sailkit/compass';
+import { createNavigator } from '@sailkit-dev/compass';
 
 const nav = createNavigator({
   items: navigation,

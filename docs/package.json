@@ -10,10 +10,10 @@
   },
   "dependencies": {
     "astro": "^5.16.5",
-    "@sailkit/compass": "*",
-    "@sailkit/teleport": "*",
-    "@sailkit/lantern": "*",
-    "@sailkit/lighthouse": "*",
-    "@sailkit/atlas": "*"
+    "@sailkit-dev/compass": "*",
+    "@sailkit-dev/teleport": "*",
+    "@sailkit-dev/lantern": "*",
+    "@sailkit-dev/lighthouse": "*",
+    "@sailkit-dev/atlas": "*"
   }
 }

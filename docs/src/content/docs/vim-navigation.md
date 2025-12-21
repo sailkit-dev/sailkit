@@ -28,7 +28,7 @@ Out of the box, Teleport uses these Vim-inspired keys:
 ### Changing Individual Keys
 
 ```typescript nocheck
-import { initTeleport } from '@sailkit/teleport';
+import { initTeleport } from '@sailkit-dev/teleport';
 
 initTeleport({
   itemSelector: '.nav-item',
@@ -97,8 +97,8 @@ Keys are specified as strings with optional modifiers:
 Combine [[teleport]] with [[compass]] for intelligent page navigation:
 
 ```typescript nocheck
-import { initTeleport } from '@sailkit/teleport';
-import { createNavigator } from '@sailkit/compass';
+import { initTeleport } from '@sailkit-dev/teleport';
+import { createNavigator } from '@sailkit-dev/compass';
 import { navigation } from './navigation';
 
 const nav = createNavigator({
@@ -130,7 +130,7 @@ initTeleport({
 ### Custom Scroll Behavior
 
 ```typescript nocheck
-import { initTeleport, scrollElement } from '@sailkit/teleport';
+import { initTeleport, scrollElement } from '@sailkit-dev/teleport';
 
 initTeleport({
   itemSelector: '.nav-item',
@@ -174,7 +174,7 @@ Teleport offers three abstraction layers. Choose based on your needs:
 Use when you have custom DOM handling:
 
 ```typescript nocheck
-import { createKeyboardHandler } from '@sailkit/teleport';
+import { createKeyboardHandler } from '@sailkit-dev/teleport';
 
 let currentIndex = 0;
 const items = document.querySelectorAll('.item');
@@ -198,7 +198,7 @@ document.addEventListener('keydown', handler.handleKeydown);
 Use when you need highlighting but custom keyboard callbacks:
 
 ```typescript nocheck
-import { createDOMNavigator, createKeyboardHandler } from '@sailkit/teleport';
+import { createDOMNavigator, createKeyboardHandler } from '@sailkit-dev/teleport';
 
 const navigator = createDOMNavigator({
   getItems: () => document.querySelectorAll('.nav-item'),
@@ -219,7 +219,7 @@ document.addEventListener('keydown', handler.handleKeydown);
 Use for standard documentation navigation:
 
 ```typescript nocheck
-import { initTeleport } from '@sailkit/teleport';
+import { initTeleport } from '@sailkit-dev/teleport';
 
 const teleport = initTeleport({
   itemSelector: '.nav-item',
@@ -237,7 +237,7 @@ By default, key bindings are disabled in text inputs:
 // <input>, <textarea>, [contenteditable]
 
 // To check manually:
-import { isTypingContext } from '@sailkit/teleport';
+import { isTypingContext } from '@sailkit-dev/teleport';
 
 document.addEventListener('keydown', (e) => {
   if (isTypingContext(e)) return;

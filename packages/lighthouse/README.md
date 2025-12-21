@@ -55,7 +55,7 @@ const defaultMatcher = createCompositeMatcher([
 ```astro
 // src/pages/404.astro
 ---
-import NotFound from '@sailkit/lighthouse/NotFound.astro';
+import NotFound from '@sailkit-dev/lighthouse/NotFound.astro';
 import Layout from '../layouts/Layout.astro';
 
 const pages = posts.map(p => ({

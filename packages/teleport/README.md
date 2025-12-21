@@ -1,4 +1,4 @@
-# @sailkit/teleport
+# @sailkit-dev/teleport
 
 Vim-style keyboard navigation for any website.
 
@@ -37,7 +37,7 @@ Mousetrap.bind('j', () => {
 
 **Drop-in for any website.** Teleport is a vanilla JavaScript library that works with any DOM. Just provide CSS selectors and it handles everything else.
 
-**Internally uses Compass.** Teleport scans the DOM and builds a navigation tree using [@sailkit/compass](../compass). You get hierarchical navigation for free.
+**Internally uses Compass.** Teleport scans the DOM and builds a navigation tree using [@sailkit-dev/compass](../compass). You get hierarchical navigation for free.
 
 **Framework-agnostic.** The core is pure JavaScript. The Astro component is a convenience wrapper.
 
@@ -72,7 +72,7 @@ DOM UPDATE
 
 ```javascript
 // Works anywhere - no framework required
-import { createTeleport } from '@sailkit/teleport';
+import { createTeleport } from '@sailkit-dev/teleport';
 
 const teleport = createTeleport({
   itemSelector: '.nav-item',
@@ -87,7 +87,7 @@ teleport.destroy();
 
 ```astro
 ---
-import Teleport from '@sailkit/teleport/Teleport.astro';
+import Teleport from '@sailkit-dev/teleport/Teleport.astro';
 ---
 <html>
   <body>
@@ -168,7 +168,7 @@ Teleport detects hidden sidebars via:
 ## Programmatic API
 
 ```typescript
-import { createTeleport } from '@sailkit/teleport';
+import { createTeleport } from '@sailkit-dev/teleport';
 
 const teleport = createTeleport({
   itemSelector: '.nav-item',
@@ -194,7 +194,7 @@ teleport.destroy();
 For custom integrations, use the key binding layer directly:
 
 ```typescript
-import { createKeyboardHandler, DEFAULT_BINDINGS } from '@sailkit/teleport';
+import { createKeyboardHandler, DEFAULT_BINDINGS } from '@sailkit-dev/teleport';
 
 const handler = createKeyboardHandler({
   bindings: DEFAULT_BINDINGS,

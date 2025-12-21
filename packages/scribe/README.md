@@ -1,4 +1,4 @@
-# @sailkit/scribe
+# @sailkit-dev/scribe
 
 Extract and test code fences from markdown documentation.
 
@@ -22,7 +22,7 @@ if (result !== 3) throw new Error('Expected 3')
 ## API
 
 ```typescript
-import { parseMarkdown, filterTestableBlocks, runBlocks } from '@sailkit/scribe'
+import { parseMarkdown, filterTestableBlocks, runBlocks } from '@sailkit-dev/scribe'
 
 const blocks = parseMarkdown(content, 'file.md')
 const testable = filterTestableBlocks(blocks)

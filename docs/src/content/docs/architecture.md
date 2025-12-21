@@ -252,23 +252,23 @@ Each package offers multiple abstraction levels:
 
 ```typescript nocheck
 // Teleport: Just key handling
-import { createKeyboardHandler } from '@sailkit/teleport';
+import { createKeyboardHandler } from '@sailkit-dev/teleport';
 
 // Lighthouse: Just matching
-import { findMatches } from '@sailkit/lighthouse';
+import { findMatches } from '@sailkit-dev/lighthouse';
 
 // Compass: Just utilities
-import { getNeighbors } from '@sailkit/compass';
+import { getNeighbors } from '@sailkit-dev/compass';
 ```
 
 ### Mid Level (Some Opinions)
 
 ```typescript nocheck
 // Teleport: DOM handling included
-import { createDOMNavigator } from '@sailkit/teleport';
+import { createDOMNavigator } from '@sailkit-dev/teleport';
 
 // Compass: Full state machine
-import { createNavigator } from '@sailkit/compass';
+import { createNavigator } from '@sailkit-dev/compass';
 ```
 
 ### High Level (Batteries Included)

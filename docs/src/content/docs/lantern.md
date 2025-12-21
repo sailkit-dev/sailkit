@@ -5,13 +5,11 @@ description: Theme toggle with flash-free dark mode.
 
 # Lantern
 
-**@sailkit/lantern** provides dark mode done right. No flash of wrong theme, localStorage persistence, and reactive updates.
+**@sailkit-dev/lantern** provides dark mode done right. No flash of wrong theme, localStorage persistence, and reactive updates.
 
 ## Installation
 
-```bash
-npm install @sailkit/lantern
-```
+See [[installation]] for setup instructions.
 
 ## The Flash Problem
 
@@ -29,8 +27,8 @@ Lantern solves this with an inline script that runs before any paint.
 
 ```astro
 ---
-import { initScript } from '@sailkit/lantern';
-import ThemeToggle from '@sailkit/lantern/ThemeToggle.astro';
+import { initScript } from '@sailkit-dev/lantern';
+import ThemeToggle from '@sailkit-dev/lantern/ThemeToggle.astro';
 ---
 <html>
   <head>
@@ -85,7 +83,7 @@ import {
   setTheme,
   toggleTheme,
   onThemeChange
-} from '@sailkit/lantern';
+} from '@sailkit-dev/lantern';
 
 // Initialize (restore from localStorage)
 initTheme();
@@ -142,7 +140,7 @@ By default, Lantern respects `prefers-color-scheme`:
 Multiple components can react to theme changes:
 
 ```typescript
-import { onThemeChange } from '@sailkit/lantern';
+import { onThemeChange } from '@sailkit-dev/lantern';
 
 // In component A
 onThemeChange((theme) => {
@@ -161,9 +159,9 @@ Full layout with [[teleport|Teleport]] and Lantern:
 
 ```astro
 ---
-import { initScript } from '@sailkit/lantern';
-import ThemeToggle from '@sailkit/lantern/ThemeToggle.astro';
-import Teleport from '@sailkit/teleport/Teleport.astro';
+import { initScript } from '@sailkit-dev/lantern';
+import ThemeToggle from '@sailkit-dev/lantern/ThemeToggle.astro';
+import Teleport from '@sailkit-dev/teleport/Teleport.astro';
 ---
 <html>
   <head>

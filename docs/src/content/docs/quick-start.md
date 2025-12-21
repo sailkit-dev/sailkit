@@ -13,7 +13,7 @@ First, add [[atlas]] to your Astro config to enable wiki-style links:
 
 ```javascript nocheck
 // astro.config.mjs
-import { remarkMagicLinks } from '@sailkit/atlas';
+import { remarkMagicLinks } from '@sailkit-dev/atlas';
 
 export default {
   markdown: {
@@ -35,8 +35,8 @@ Add [[lantern|theme toggle]] with flash prevention:
 
 ```astro
 ---
-import { initScript } from '@sailkit/lantern';
-import ThemeToggle from '@sailkit/lantern/ThemeToggle.astro';
+import { initScript } from '@sailkit-dev/lantern';
+import ThemeToggle from '@sailkit-dev/lantern/ThemeToggle.astro';
 ---
 <html>
   <head>
@@ -56,7 +56,7 @@ Define your navigation structure using [[compass]]:
 
 ```typescript nocheck
 // navigation.ts
-import type { NavItem } from '@sailkit/compass';
+import type { NavItem } from '@sailkit-dev/compass';
 
 export const navigation: NavItem[] = [
   'introduction',
@@ -74,7 +74,7 @@ export const navigation: NavItem[] = [
 Use `getNeighbors()` for prev/next links:
 
 ```typescript nocheck
-import { getNeighbors } from '@sailkit/compass';
+import { getNeighbors } from '@sailkit-dev/compass';
 
 const { prev, next } = getNeighbors(navigation, 'installation');
 // prev: 'introduction', next: 'quick-start'
@@ -86,7 +86,7 @@ Add [[teleport]] for keyboard navigation:
 
 ```astro
 ---
-import Teleport from '@sailkit/teleport/Teleport.astro';
+import Teleport from '@sailkit-dev/teleport/Teleport.astro';
 ---
 <body>
   <nav class="sidebar">
@@ -109,7 +109,7 @@ Add [[lighthouse|smart 404]] handling:
 ```astro
 ---
 // src/pages/404.astro
-import NotFound from '@sailkit/lighthouse/NotFound.astro';
+import NotFound from '@sailkit-dev/lighthouse/NotFound.astro';
 
 const pages = [
   { url: '/docs/intro/', title: 'Introduction' },

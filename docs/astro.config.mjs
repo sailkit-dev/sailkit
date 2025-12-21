@@ -1,6 +1,6 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
-import { remarkMagicLinks } from '@sailkit/atlas';
+import { remarkMagicLinks } from '@sailkit-dev/atlas';
 
 // https://astro.build/config
 export default defineConfig({

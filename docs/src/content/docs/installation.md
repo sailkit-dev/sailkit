@@ -7,47 +7,38 @@ description: How to install Sailkit packages in your project.
 
 Sailkit packages are designed to be installed individually based on your needs.
 
-## From Source
+## From Git
 
-Sailkit packages are not yet published to npm. For now, install from the GitHub repository:
+Sailkit packages are not yet published to npm. Install from the GitHub repository using git URLs:
 
-```bash
-# Clone the repository
-git clone https://github.com/joshribakoff/sailkit.git
-cd sailkit
-
-# Install dependencies
-npm install
-
-# Build all packages
-npm run build
-```
-
-Then link the packages to your project using npm workspaces or local file paths:
-
-```json
+```json nocheck
 {
   "dependencies": {
-    "@sailkit/compass": "file:../sailkit/packages/compass",
-    "@sailkit/teleport": "file:../sailkit/packages/teleport",
-    "@sailkit/lantern": "file:../sailkit/packages/lantern",
-    "@sailkit/lighthouse": "file:../sailkit/packages/lighthouse",
-    "@sailkit/atlas": "file:../sailkit/packages/atlas"
+    "@sailkit-dev/compass": "github:sailkit-dev/sailkit#main",
+    "@sailkit-dev/teleport": "github:sailkit-dev/sailkit#main",
+    "@sailkit-dev/lantern": "github:sailkit-dev/sailkit#main",
+    "@sailkit-dev/lighthouse": "github:sailkit-dev/sailkit#main",
+    "@sailkit-dev/atlas": "github:sailkit-dev/sailkit#main"
   }
 }
 ```
 
-## Coming Soon: npm Registry
+**Note:** npm resolves all packages from the monorepo. The prepare script builds packages automatically.
 
-Once published, you'll be able to install directly:
+## Local Development
 
-```bash
-# Install individual packages (coming soon)
-npm install @sailkit/compass
-npm install @sailkit/teleport
-npm install @sailkit/lantern
-npm install @sailkit/lighthouse
-npm install @sailkit/atlas
+For contributing or active development, clone and link locally:
+
+```bash nocheck
+git clone https://github.com/sailkit-dev/sailkit.git
+cd sailkit && npm install
+npm link packages/compass packages/teleport packages/lantern
+```
+
+Then in your project:
+
+```bash nocheck
+npm link @sailkit-dev/compass @sailkit-dev/teleport @sailkit-dev/lantern
 ```
 
 ## Framework Support
@@ -68,11 +59,11 @@ All packages include TypeScript definitions. No additional `@types` packages nee
 
 ```typescript nocheck
 // Types are exported from each package
-import type { NavItem, Navigator } from '@sailkit/compass';
-import type { KeyBindings, Teleport } from '@sailkit/teleport';
-import type { Theme } from '@sailkit/lantern';
-import type { Page, ScoredPage, Matcher } from '@sailkit/lighthouse';
-import type { RemarkMagicLinksConfig, LinkSyntax } from '@sailkit/atlas';
+import type { NavItem, Navigator } from '@sailkit-dev/compass';
+import type { KeyBindings, Teleport } from '@sailkit-dev/teleport';
+import type { Theme } from '@sailkit-dev/lantern';
+import type { Page, ScoredPage, Matcher } from '@sailkit-dev/lighthouse';
+import type { RemarkMagicLinksConfig, LinkSyntax } from '@sailkit-dev/atlas';
 ```
 
 ## Peer Dependencies

@@ -1,5 +1,5 @@
 {
-  "name": "@sailkit/scribe",
+  "name": "@sailkit-dev/scribe",
   "version": "0.0.1",
   "description": "Extract and test code fences from markdown documentation",
   "type": "module",

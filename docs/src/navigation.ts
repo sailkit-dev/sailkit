@@ -1,4 +1,4 @@
-import type { NavItem } from '@sailkit/compass';
+import type { NavItem } from '@sailkit-dev/compass';
 
 // Navigation structure for the documentation
 // Uses compass NavItem type - strings are leaf pages, objects with children are sections

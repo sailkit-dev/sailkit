@@ -5,13 +5,11 @@ description: Smart 404 handling with fuzzy matching.
 
 # Lighthouse
 
-**@sailkit/lighthouse** provides smart 404 handling with fuzzy matching. Automatically redirects typos and shows suggestions for near-matches.
+**@sailkit-dev/lighthouse** provides smart 404 handling with fuzzy matching. Automatically redirects typos and shows suggestions for near-matches.
 
 ## Installation
 
-```bash
-npm install @sailkit/lighthouse
-```
+See [[installation]] for setup instructions.
 
 ## The Problem
 
@@ -28,7 +26,7 @@ Lighthouse intelligently handles all these cases.
 ```astro
 ---
 // src/pages/404.astro
-import NotFound from '@sailkit/lighthouse/NotFound.astro';
+import NotFound from '@sailkit-dev/lighthouse/NotFound.astro';
 
 const pages = [
   { url: '/docs/introduction/', title: 'Introduction' },
@@ -83,7 +81,7 @@ import {
   findMatches,
   shouldAutoRedirect,
   defaultMatcher
-} from '@sailkit/lighthouse';
+} from '@sailkit-dev/lighthouse';
 
 const pages = [
   { url: '/docs/introduction/', title: 'Introduction' },
@@ -113,7 +111,7 @@ import {
   levenshteinMatcher,
   exactSlugMatcher,
   tokenOverlapMatcher
-} from '@sailkit/lighthouse';
+} from '@sailkit-dev/lighthouse';
 
 // Emphasize exact slug matching
 const strictMatcher = createCompositeMatcher([
@@ -160,7 +158,7 @@ For Astro, collect pages at build time:
 ```astro
 ---
 import { getCollection } from 'astro:content';
-import NotFound from '@sailkit/lighthouse/NotFound.astro';
+import NotFound from '@sailkit-dev/lighthouse/NotFound.astro';
 
 const docs = await getCollection('docs');
 const pages = docs.map(doc => ({

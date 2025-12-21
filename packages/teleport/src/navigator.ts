@@ -5,7 +5,7 @@
  * and handles all DOM updates (highlighting, scrolling).
  */
 
-import { createNavigator, type Navigator, type NavItem } from '@sailkit/compass';
+import { createNavigator, type Navigator, type NavItem } from '@sailkit-dev/compass';
 import { createKeyboardHandler, DEFAULT_BINDINGS } from './keys.js';
 import type { KeyBindings } from './types.js';
 import { scrollElement, getViewportHeight } from './dom.js';

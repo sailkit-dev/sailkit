@@ -1,5 +1,5 @@
 {
-  "name": "@sailkit/lighthouse",
+  "name": "@sailkit-dev/lighthouse",
   "version": "0.1.0",
   "description": "404 recovery with fuzzy matching and auto-redirect",
   "type": "module",

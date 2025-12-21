@@ -157,7 +157,7 @@ The `initScript` must run before any render:
 
 ```astro
 ---
-import { initScript } from '@sailkit/lantern';
+import { initScript } from '@sailkit-dev/lantern';
 ---
 <html>
   <head>
@@ -188,7 +188,7 @@ Lantern respects `prefers-color-scheme` by default:
 To handle manually:
 
 ```typescript nocheck
-import { setTheme } from '@sailkit/lantern';
+import { setTheme } from '@sailkit-dev/lantern';
 
 // Respect system preference
 const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -205,7 +205,7 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e)
 Update UI when theme changes:
 
 ```typescript nocheck
-import { onThemeChange, getTheme } from '@sailkit/lantern';
+import { onThemeChange, getTheme } from '@sailkit-dev/lantern';
 
 // Update icon based on theme
 function updateThemeIcon() {

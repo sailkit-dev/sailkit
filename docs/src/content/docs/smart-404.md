@@ -98,7 +98,7 @@ import {
   tokenOverlapMatcher,
   levenshteinMatcher,
   exactSlugMatcher
-} from '@sailkit/lighthouse';
+} from '@sailkit-dev/lighthouse';
 
 const titleFocusedMatcher = createCompositeMatcher([
   { matcher: tokenOverlapMatcher, weight: 0.5 },

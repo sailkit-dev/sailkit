@@ -36,10 +36,10 @@ A complete setup typically involves:
 ```astro
 ---
 // Layout.astro - combines all five packages
-import { initScript } from '@sailkit/lantern';
-import { getNeighbors } from '@sailkit/compass';
-import ThemeToggle from '@sailkit/lantern/ThemeToggle.astro';
-import Teleport from '@sailkit/teleport/Teleport.astro';
+import { initScript } from '@sailkit-dev/lantern';
+import { getNeighbors } from '@sailkit-dev/compass';
+import ThemeToggle from '@sailkit-dev/lantern/ThemeToggle.astro';
+import Teleport from '@sailkit-dev/teleport/Teleport.astro';
 import { navigation } from '../navigation';
 
 const { slug } = Astro.props;
@@ -69,7 +69,7 @@ Start with just one or two packages:
 ```astro
 ---
 // Just keyboard navigation
-import Teleport from '@sailkit/teleport/Teleport.astro';
+import Teleport from '@sailkit-dev/teleport/Teleport.astro';
 ---
 <nav>
   <a class="nav-item" href="/a">A</a>

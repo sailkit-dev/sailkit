@@ -5,12 +5,12 @@ description: Extract and test code from markdown documentation.
 
 # Scribe
 
-**@sailkit/scribe** extracts and tests code from markdown documentation. Ensure your documentation examples actually work.
+**@sailkit-dev/scribe** extracts and tests code from markdown documentation. Ensure your documentation examples actually work.
 
 ## Installation
 
 ```bash nocheck
-npm install @sailkit/scribe
+npm install @sailkit-dev/scribe
 ```
 
 ## CLI Usage
@@ -50,7 +50,7 @@ const partial =
 ## Programmatic API
 
 ```typescript nocheck
-import { parseMarkdown, filterTestableBlocks, runBlocks } from '@sailkit/scribe';
+import { parseMarkdown, filterTestableBlocks, runBlocks } from '@sailkit-dev/scribe';
 
 const content = `
 # Example
@@ -77,7 +77,7 @@ results.forEach(result => {
 Extracts all code blocks from markdown content.
 
 ```typescript nocheck
-import { parseMarkdown } from '@sailkit/scribe';
+import { parseMarkdown } from '@sailkit-dev/scribe';
 
 const blocks = parseMarkdown(markdownContent, 'file.md');
 // Returns: CodeBlock[]
@@ -88,7 +88,7 @@ const blocks = parseMarkdown(markdownContent, 'file.md');
 Filters to only JS/TS blocks without `nocheck`.
 
 ```typescript nocheck
-import { filterTestableBlocks } from '@sailkit/scribe';
+import { filterTestableBlocks } from '@sailkit-dev/scribe';
 
 const testable = filterTestableBlocks(blocks);
 // Returns blocks that should be tested
@@ -99,7 +99,7 @@ const testable = filterTestableBlocks(blocks);
 Executes code blocks and returns results.
 
 ```typescript nocheck
-import { runBlocks } from '@sailkit/scribe';
+import { runBlocks } from '@sailkit-dev/scribe';
 
 const results = await runBlocks(blocks);
 // Returns: RunResult[]
@@ -110,7 +110,7 @@ const results = await runBlocks(blocks);
 Execute a single code block.
 
 ```typescript nocheck
-import { runBlock } from '@sailkit/scribe';
+import { runBlock } from '@sailkit-dev/scribe';
 
 const result = await runBlock(block);
 // Returns: RunResult

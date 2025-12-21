@@ -1,5 +1,5 @@
 /**
- * @sailkit/scribe
+ * @sailkit-dev/scribe
  * Extract and test code fences from markdown documentation
  */
 

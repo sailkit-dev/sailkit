@@ -5,13 +5,11 @@ description: Wikipedia-style magic links in markdown.
 
 # Atlas
 
-**@sailkit/atlas** provides Wikipedia-style link syntax for markdown. Write `[[page]]` instead of `[page](/docs/page/)`.
+**@sailkit-dev/atlas** provides Wikipedia-style link syntax for markdown. Write `[[page]]` instead of `[page](/docs/page/)`.
 
 ## Installation
 
-```bash
-npm install @sailkit/atlas
-```
+See [[installation]] for setup instructions.
 
 ## The Problem
 
@@ -37,7 +35,7 @@ Add Atlas to your Astro config:
 
 ```javascript nocheck
 // astro.config.mjs
-import { remarkMagicLinks } from '@sailkit/atlas';
+import { remarkMagicLinks } from '@sailkit-dev/atlas';
 
 export default {
   markdown: {
@@ -162,7 +160,7 @@ Works identically with MDX files:
 ```javascript nocheck
 // astro.config.mjs
 import mdx from '@astrojs/mdx';
-import { remarkMagicLinks } from '@sailkit/atlas';
+import { remarkMagicLinks } from '@sailkit-dev/atlas';
 
 export default {
   integrations: [mdx()],

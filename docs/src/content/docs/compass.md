@@ -5,14 +5,14 @@ description: Navigation state machine for nested content structures.
 
 # Compass
 
-**@sailkit/compass** is a headless navigation state machine for nested content structures. It provides DFS traversal, prev/next neighbors, and parent/child navigation without any UI assumptions.
+**@sailkit-dev/compass** is a headless navigation state machine for nested content structures. It provides DFS traversal, prev/next neighbors, and parent/child navigation without any UI assumptions.
 
 ## Navigation Structure
 
 Navigation is defined as a tree of items. Strings are leaves, objects with `children` are branches:
 
 ```typescript
-import { isBranch, getSlug } from '@sailkit/compass'
+import { isBranch, getSlug } from '@sailkit-dev/compass'
 
 const nav = [
   'a',
@@ -34,7 +34,7 @@ assert.strictEqual(getSlug(nav[1]), 'b')
 Flatten the tree to a list of slugs in depth-first order:
 
 ```typescript
-import { flattenSlugs } from '@sailkit/compass'
+import { flattenSlugs } from '@sailkit-dev/compass'
 
 const nav = [
   'a',
@@ -59,7 +59,7 @@ assert.deepStrictEqual(leaves, ['a', 'b1', 'b2', 'c1', 'c2', 'c3'])
 Get prev/next for any slug - useful for pagination:
 
 ```typescript
-import { getNeighbors } from '@sailkit/compass'
+import { getNeighbors } from '@sailkit-dev/compass'
 
 const nav = [
   'a',
@@ -80,7 +80,7 @@ assert.strictEqual(next, 'b2')
 For SPAs, create a stateful navigator:
 
 ```typescript
-import { createNavigator } from '@sailkit/compass'
+import { createNavigator } from '@sailkit-dev/compass'
 
 const nav = createNavigator({ items: ['a', 'b', 'c'], wrap: true })
 
