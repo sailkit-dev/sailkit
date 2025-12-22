@@ -14,46 +14,66 @@ Check out [:context-collapse] for more.
 [:context-collapse|Learn about context] with custom display text.
 ```
 
-## Usage
+## Usage with Astro
+
+Pass your collections directly. Atlas builds the ID → URL map automatically.
 
 ```javascript
 import { remarkMagicLinks } from '@sailkit/atlas';
+import { getCollection } from 'astro:content';
 
-export default {
+const patterns = await getCollection('patterns');
+const concepts = await getCollection('concepts');
+
+export default defineConfig({
   markdown: {
     remarkPlugins: [
       [remarkMagicLinks, {
-        urlBuilder: (id) => `/wiki/${id}/`,
+        collections: [
+          { name: 'patterns', entries: patterns },
+          { name: 'concepts', entries: concepts },
+        ],
       }],
     ],
   },
-};
+});
 ```
 
-### Multi-collection routing
+Each entry needs an `id` in frontmatter:
 
-The `urlBuilder` receives the raw ID, so you control all resolution logic. A site with different content types can route each to different paths:
+```yaml
+---
+title: Context Collapse
+id: context-collapse
+---
+```
+
+Now `[[context-collapse]]` → `/context-collapse/` (global ID, like Wikipedia).
+
+### Custom URL patterns
+
+Override the default `/${slug}/` pattern to include collection prefixes:
 
 ```javascript
-// Imaginary pet store with fish, birds, and reptiles
-const catalog = {
-  'one-fish': { type: 'fish', slug: 'one-fish' },
-  'two-fish': { type: 'fish', slug: 'two-fish' },
-  'red-parrot': { type: 'bird', slug: 'red-parrot' },
-  'blue-gecko': { type: 'reptile', slug: 'blue-gecko' },
-};
-
-urlBuilder: (id) => {
-  const item = catalog[id];
-  if (!item) {
-    console.warn(`Broken magic link: [[${id}]]`);
-    return `/404/`;
-  }
-  return `/${item.type}/${item.slug}/`;
-}
+remarkMagicLinks({
+  collections: [...],
+  urlPattern: (collection, entry) => {
+    // Map collection names to URL prefixes
+    const prefixes = { patterns: 'ai-patterns', concepts: 'ai-concepts' };
+    return `/${prefixes[collection] || collection}/${entry.slug}/`;
+  },
+})
 ```
 
-Now `[[one-fish]]` → `/fish/one-fish/` and `[[blue-gecko]]` → `/reptile/blue-gecko/`.
+### Custom urlBuilder (escape hatch)
+
+For full control, provide your own resolver:
+
+```javascript
+remarkMagicLinks({
+  urlBuilder: (id) => `/wiki/${id}/`,
+})
+```
 
 See [`remark-magic-links.test.ts`](./src/remark-magic-links.test.ts) for more examples.
 
@@ -70,11 +90,29 @@ Your content stays navigable in your editor without any build step.
 
 The `[[wiki-link]]` syntax appears in many tools:
 
-- **MediaWiki** — Wikipedia's engine uses `[[page]]` syntax
-- **Org mode** — Emacs system with `[[link][desc]]` and bidirectional links
-- **Roam/Obsidian** — Note-taking apps that use wiki-links
+| Tool | Linking Model | Resolution |
+|------|--------------|------------|
+| **Wikipedia** | Global titles | `[[Atom]]` → `/wiki/Atom`. Case-insensitive first char. Disambiguation pages for collisions. |
+| **Obsidian** | Global filenames | Filename = ID. "Shortest path when possible" or "relative to file" modes. |
+| **Org-mode** | Multiple ID types | Priority: `CUSTOM_ID` → headline → dedicated target → `NAME`. Optional global tracking. |
+| **Docusaurus** | Relative paths only | `[link](../doc.md)`. No global IDs (declined for portability). |
+| **Hugo** | Shortcodes | `{{< ref "doc.md" >}}`. Relative-first, then global. |
+| **Starlight** | Standard markdown | No wiki-links. Slug-based sidebar config. |
 
-This plugin brings the same convention to static site generators.
+## Design Philosophy
+
+Atlas assumes **globally unique IDs** across all content.
+
+**Why not full Astro routing compatibility?**
+
+Astro allows arbitrary routing: dynamic pages, hardcoded paths, random content generation. There's no guaranteed one-to-one mapping between content and URLs. Full compatibility would require re-implementing Astro's routing engine.
+
+Instead, Atlas is opinionated:
+- IDs must be unique across all collections
+- URL pattern is `/${slug}/` by default (global ID, like Wikipedia)
+- Sites needing collection prefixes or custom routing provide a `urlPattern`
+
+This covers the common case while allowing escape hatches.
 
 ## How It Works
 

@@ -117,4 +117,94 @@ describe('remarkMagicLinks', () => {
       expect(String(result)).toContain('[my-page](/custom/my-page.html)');
     });
   });
+
+  describe('collections API', () => {
+    const mockCollections = [
+      {
+        name: 'patterns',
+        entries: [
+          { slug: 'context-collapse', data: { id: 'context-collapse', title: 'Context Collapse' } },
+          { slug: 'hallucination', data: { id: 'hallucination', title: 'Hallucination' } },
+        ],
+      },
+      {
+        name: 'concepts',
+        entries: [
+          { slug: 'prompt-engineering', data: { id: 'prompt-engineering', title: 'Prompt Engineering' } },
+        ],
+      },
+    ];
+
+    it('resolves IDs from collections with default URL pattern (global ID)', async () => {
+      const result = await unified()
+        .use(remarkParse)
+        .use(remarkMagicLinks, { collections: mockCollections })
+        .use(remarkStringify)
+        .process('See [[context-collapse]] for more.');
+      // Default: just slug, no collection prefix (like Wikipedia)
+      expect(String(result)).toContain('[context-collapse](/context-collapse/)');
+    });
+
+    it('resolves IDs across different collections', async () => {
+      const result = await unified()
+        .use(remarkParse)
+        .use(remarkMagicLinks, { collections: mockCollections })
+        .use(remarkStringify)
+        .process('Check [[hallucination]] and [[prompt-engineering]].');
+      // Default: just slug, no collection prefix
+      expect(String(result)).toContain('[hallucination](/hallucination/)');
+      expect(String(result)).toContain('[prompt-engineering](/prompt-engineering/)');
+    });
+
+    it('returns #unknown-id for unresolved IDs', async () => {
+      const result = await unified()
+        .use(remarkParse)
+        .use(remarkMagicLinks, { collections: mockCollections })
+        .use(remarkStringify)
+        .process('See [[nonexistent]] here.');
+      expect(String(result)).toContain('[nonexistent](#unknown-nonexistent)');
+    });
+
+    it('supports custom urlPattern with collection prefix', async () => {
+      const result = await unified()
+        .use(remarkParse)
+        .use(remarkMagicLinks, {
+          collections: mockCollections,
+          urlPattern: (collection, entry) => `/${collection}/${entry.slug}/`,
+        })
+        .use(remarkStringify)
+        .process('See [[context-collapse]] here.');
+      expect(String(result)).toContain('[context-collapse](/patterns/context-collapse/)');
+    });
+
+    it('supports custom urlPattern with arbitrary paths', async () => {
+      const result = await unified()
+        .use(remarkParse)
+        .use(remarkMagicLinks, {
+          collections: mockCollections,
+          urlPattern: (collection, entry) => `/docs/${collection}/${entry.slug}.html`,
+        })
+        .use(remarkStringify)
+        .process('See [[context-collapse]] here.');
+      expect(String(result)).toContain('[context-collapse](/docs/patterns/context-collapse.html)');
+    });
+
+    it('urlPattern receives full entry for custom logic', async () => {
+      const result = await unified()
+        .use(remarkParse)
+        .use(remarkMagicLinks, {
+          collections: mockCollections,
+          urlPattern: (_collection, entry) => `/wiki/${entry.data.title?.toLowerCase().replace(/ /g, '-')}/`,
+        })
+        .use(remarkStringify)
+        .process('See [[prompt-engineering]] here.');
+      expect(String(result)).toContain('[prompt-engineering](/wiki/prompt-engineering/)');
+    });
+
+    it('throws if neither collections nor urlBuilder provided', () => {
+      expect(() => {
+        remarkMagicLinks({} as any);
+      }).toThrow('remarkMagicLinks requires either `collections` or `urlBuilder`');
+    });
+  });
 });
