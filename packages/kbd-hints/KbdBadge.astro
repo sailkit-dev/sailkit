@@ -24,7 +24,7 @@ const { keys, label, enabled = true, class: className } = Astro.props;
 if (!enabled) return null;
 ---
 
-<span class:list={['kbd-badge', className]}>
+<span class:list={['kbd-hints-badge', className]}>
   {keys.map(key => <kbd>{formatKey(key)}</kbd>)}
-  {label && <span class="kbd-label">{label}</span>}
+  {label && <span class="kbd-hints-label">{label}</span>}
 </span>

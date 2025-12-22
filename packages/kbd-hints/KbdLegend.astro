@@ -28,21 +28,21 @@ const groups = getBindingGroups(bindings);
 ---
 
 {layout === 'compact' ? (
-  <div class:list={['kbd-legend kbd-legend--compact', className]}>
+  <div class:list={['kbd-hints-legend kbd-hints-legend--compact', className]}>
     {groups.flatMap(g => g.shortcuts).map(s => (
-      <span class="kbd-group">
+      <span class="kbd-hints-group">
         {s.keys.map(k => <kbd>{formatKey(k)}</kbd>)}
-        <span class="kbd-label">{s.label}</span>
+        <span class="kbd-hints-label">{s.label}</span>
       </span>
     ))}
   </div>
 ) : (
-  <div class:list={['kbd-legend', className]}>
-    <div class="kbd-legend-title">Keyboard</div>
+  <div class:list={['kbd-hints-legend', className]}>
+    <div class="kbd-hints-title">Keyboard</div>
     {groups.flatMap(g => g.shortcuts).map(s => (
-      <div class="kbd-row">
+      <div class="kbd-hints-row">
         {s.keys.map(k => <kbd>{formatKey(k)}</kbd>)}
-        <span class="kbd-label">{s.label}</span>
+        <span class="kbd-hints-label">{s.label}</span>
       </div>
     ))}
   </div>

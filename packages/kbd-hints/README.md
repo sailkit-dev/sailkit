@@ -46,25 +46,33 @@ import KbdBadge from '@sailkit/kbd-hints/KbdBadge.astro';
 Components apply CSS classes; sites define styles:
 
 ```css
-.kbd-legend { /* container */ }
-.kbd-legend--compact { /* header bar variant */ }
-.kbd-legend-title { /* "Keyboard" heading */ }
-.kbd-row { /* single shortcut row */ }
-.kbd-badge { /* inline badge container */ }
-.kbd-group { /* compact group */ }
-.kbd-label { /* label text */ }
+.kbd-hints-legend { /* container */ }
+.kbd-hints-legend--compact { /* header bar variant */ }
+.kbd-hints-title { /* "Keyboard" heading */ }
+.kbd-hints-row { /* single shortcut row */ }
+.kbd-hints-badge { /* inline badge container */ }
+.kbd-hints-group { /* compact group */ }
+.kbd-hints-label { /* label text */ }
 kbd { /* key badge */ }
 ```
 
 ## Visibility
 
-No detection built-in. Sites handle visibility:
+Control visibility with the `enabled` prop:
 
-```css
-/* Hide on touch devices */
-@media (pointer: coarse) and (hover: none) {
-  .kbd-legend { display: none; }
-}
+```astro
+<!-- Auto-detect (default) -->
+<KbdLegend bindings={DEFAULT_BINDINGS} enabled="auto" />
+
+<!-- Always show -->
+<KbdLegend bindings={DEFAULT_BINDINGS} enabled="always" />
+
+<!-- Always hide -->
+<KbdLegend bindings={DEFAULT_BINDINGS} enabled="never" />
 ```
 
-Or pass `enabled={false}` prop.
+Detection strategy (when `enabled="auto"`):
+1. Desktop breakpoint → show by default
+2. Mobile breakpoint → hide by default
+3. Touch event → hide (unless localStorage flag set)
+4. Keydown event → show + persist to localStorage permanently
