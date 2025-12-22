@@ -1,5 +1,5 @@
 {
-  "name": "@bearing-dev/compass",
+  "name": "@sailkit/compass",
   "version": "0.1.0",
   "description": "Headless navigation state for lists and trees",
   "type": "module",

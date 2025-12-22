@@ -1,5 +1,5 @@
 {
-  "name": "@bearing-dev/atlas",
+  "name": "@sailkit/atlas",
   "version": "0.1.0",
   "description": "Wikipedia-style magic links with build-time resolution",
   "type": "module",
