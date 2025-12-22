@@ -33,16 +33,98 @@ export interface KeyboardDetector {
 const STORAGE_KEY = 'kbd:hasKeyboard';
 
 export function createKeyboardDetector(
-  _config: KeyboardDetectorConfig = {}
+  config: KeyboardDetectorConfig = {}
 ): KeyboardDetector {
-  // TODO: Implement detection logic
-  // This stub will fail all tests
+  const { enabled = 'auto', desktopQuery = '(min-width: 769px)' } = config;
+
+  // Normalize enabled prop
+  const mode = enabled === true ? 'always' : enabled === false ? 'never' : enabled;
+
+  // State
+  let touchHidden = false;
+  const subscribers = new Set<(visible: boolean) => void>();
+
+  // Check localStorage for permanent flag
+  function hasKeyboardFlag(): boolean {
+    try {
+      return localStorage.getItem(STORAGE_KEY) === 'true';
+    } catch {
+      return false;
+    }
+  }
+
+  // Set localStorage flag
+  function setKeyboardFlag(): void {
+    try {
+      localStorage.setItem(STORAGE_KEY, 'true');
+    } catch {
+      // Ignore storage errors
+    }
+  }
+
+  // Check if desktop breakpoint matches
+  function isDesktop(): boolean {
+    return matchMedia(desktopQuery).matches;
+  }
+
+  // Notify subscribers of visibility change
+  function notify(visible: boolean): void {
+    subscribers.forEach(cb => cb(visible));
+  }
+
+  function shouldShow(): boolean {
+    // Consumer overrides
+    if (mode === 'always') return true;
+    if (mode === 'never') return false;
+
+    // localStorage flag trumps all detection
+    if (hasKeyboardFlag()) return true;
+
+    // Touch hidden (unless localStorage flag set)
+    if (touchHidden) return false;
+
+    // Breakpoint default
+    return isDesktop();
+  }
+
+  function handleTouch(): void {
+    // If localStorage flag is set, touch doesn't hide
+    if (hasKeyboardFlag()) return;
+
+    const wasVisible = shouldShow();
+    touchHidden = true;
+    const nowVisible = shouldShow();
+
+    if (wasVisible !== nowVisible) {
+      notify(nowVisible);
+    }
+  }
+
+  function handleKeydown(): void {
+    const wasVisible = shouldShow();
+    setKeyboardFlag();
+    touchHidden = false; // Reset touch hidden state
+    const nowVisible = shouldShow();
+
+    if (wasVisible !== nowVisible) {
+      notify(nowVisible);
+    }
+  }
+
+  function subscribe(callback: (visible: boolean) => void): () => void {
+    subscribers.add(callback);
+    return () => subscribers.delete(callback);
+  }
+
+  function destroy(): void {
+    subscribers.clear();
+  }
 
   return {
-    shouldShow: () => false,
-    handleTouch: () => {},
-    handleKeydown: () => {},
-    subscribe: () => () => {},
-    destroy: () => {},
+    shouldShow,
+    handleTouch,
+    handleKeydown,
+    subscribe,
+    destroy,
   };
 }
