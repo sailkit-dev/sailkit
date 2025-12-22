@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
 import remarkStringify from 'remark-stringify';
@@ -156,13 +156,35 @@ describe('remarkMagicLinks', () => {
       expect(String(result)).toContain('[prompt-engineering](/prompt-engineering/)');
     });
 
-    it('returns #unknown-id for unresolved IDs', async () => {
+    it('throws on broken links by default', async () => {
+      await expect(
+        unified()
+          .use(remarkParse)
+          .use(remarkMagicLinks, { collections: mockCollections })
+          .use(remarkStringify)
+          .process('See [[nonexistent]] here.')
+      ).rejects.toThrow('Broken magic links found');
+    });
+
+    it('renders #broken-link when onBrokenLink is ignore', async () => {
       const result = await unified()
         .use(remarkParse)
-        .use(remarkMagicLinks, { collections: mockCollections })
+        .use(remarkMagicLinks, { collections: mockCollections, onBrokenLink: 'ignore' })
         .use(remarkStringify)
         .process('See [[nonexistent]] here.');
-      expect(String(result)).toContain('[nonexistent](#unknown-nonexistent)');
+      expect(String(result)).toContain('[nonexistent](#broken-link-nonexistent)');
+    });
+
+    it('warns on broken links when onBrokenLink is warn', async () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const result = await unified()
+        .use(remarkParse)
+        .use(remarkMagicLinks, { collections: mockCollections, onBrokenLink: 'warn' })
+        .use(remarkStringify)
+        .process('See [[nonexistent]] here.');
+      expect(String(result)).toContain('[nonexistent](#broken-link-nonexistent)');
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Broken magic links'));
+      warnSpy.mockRestore();
     });
 
     it('supports custom urlPattern with collection prefix', async () => {

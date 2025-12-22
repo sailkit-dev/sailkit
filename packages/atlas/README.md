@@ -1,6 +1,6 @@
 # atlas
 
-Remark plugin for Wikipedia-style magic links.
+Wikipedia-style magic links with broken link detection.
 
 ## Syntax
 
@@ -76,6 +76,37 @@ remarkMagicLinks({
 ```
 
 See [`remark-magic-links.test.ts`](./src/remark-magic-links.test.ts) for more examples.
+
+## Broken Link Detection
+
+### Standalone Checker (Fast Feedback)
+
+For tight feedback loops during authoring, use the standalone checker:
+
+```javascript
+import { checkLinks, formatCheckResults } from 'bearing-dev/packages/atlas';
+
+const result = checkLinks('./src/content');
+console.log(formatCheckResults(result));
+// ✗ 2 broken link(s) found:
+//   patterns/foo.md:12 - [[nonexistent]]
+//   concepts/bar.md:5 - [:missing]
+```
+
+Run this in watch mode or as a pre-commit hook for immediate feedback.
+
+### Build-Time Validation
+
+The remark plugin also validates during build:
+
+```javascript
+remarkMagicLinks({
+  collections: [...],
+  onBrokenLink: 'throw',  // Default - fail the build
+  // onBrokenLink: 'warn', // Log warning, continue with #broken-link-{id}
+  // onBrokenLink: 'ignore', // Silently render #broken-link-{id}
+})
+```
 
 ## Editor Support
 
