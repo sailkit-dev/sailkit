@@ -1,0 +1,30 @@
+---
+/**
+ * KbdBadge - Render keyboard shortcut badges
+ *
+ * @example
+ * <KbdBadge keys={['j', 'k']} label="navigate" />
+ * <!-- Output: <kbd>j</kbd><kbd>k</kbd> navigate -->
+ */
+import { formatKey } from './src/bindings.js';
+
+interface Props {
+  /** Keys to display, e.g. ['j', 'k'] or ['Ctrl+d'] */
+  keys: string[];
+  /** Optional label after the keys */
+  label?: string;
+  /** Whether to render (default: true) */
+  enabled?: boolean;
+  /** Additional CSS class */
+  class?: string;
+}
+
+const { keys, label, enabled = true, class: className } = Astro.props;
+
+if (!enabled) return null;
+---
+
+<span class:list={['kbd-hints-badge', className]}>
+  {keys.map(key => <kbd>{formatKey(key)}</kbd>)}
+  {label && <span class="kbd-hints-label">{label}</span>}
+</span>

@@ -1,0 +1,49 @@
+---
+/**
+ * KbdLegend - Render grouped keyboard shortcut legend
+ *
+ * @example
+ * import { DEFAULT_BINDINGS } from '@sailkit/teleport';
+ * <KbdLegend bindings={DEFAULT_BINDINGS} />
+ */
+import { getBindingGroups, formatKey } from './src/bindings.js';
+import type { TeleportBindings } from './src/types.js';
+
+interface Props {
+  /** Teleport bindings object */
+  bindings: TeleportBindings;
+  /** Whether to render (default: true) */
+  enabled?: boolean;
+  /** Layout: 'compact' for header bar, 'full' for sidebar */
+  layout?: 'compact' | 'full';
+  /** Additional CSS class */
+  class?: string;
+}
+
+const { bindings, enabled = true, layout = 'full', class: className } = Astro.props;
+
+if (!enabled) return null;
+
+const groups = getBindingGroups(bindings);
+---
+
+{layout === 'compact' ? (
+  <div class:list={['kbd-hints-legend kbd-hints-legend--compact', className]}>
+    {groups.flatMap(g => g.shortcuts).map(s => (
+      <span class="kbd-hints-group">
+        {s.keys.map(k => <kbd>{formatKey(k)}</kbd>)}
+        <span class="kbd-hints-label">{s.label}</span>
+      </span>
+    ))}
+  </div>
+) : (
+  <div class:list={['kbd-hints-legend', className]}>
+    <div class="kbd-hints-title">Keyboard</div>
+    {groups.flatMap(g => g.shortcuts).map(s => (
+      <div class="kbd-hints-row">
+        {s.keys.map(k => <kbd>{formatKey(k)}</kbd>)}
+        <span class="kbd-hints-label">{s.label}</span>
+      </div>
+    ))}
+  </div>
+)}

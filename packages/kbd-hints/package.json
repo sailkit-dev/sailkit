@@ -1,0 +1,28 @@
+{
+  "name": "@sailkit/kbd-hints",
+  "version": "0.1.0",
+  "description": "Keyboard shortcut visibility components",
+  "type": "module",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./KbdBadge.astro": "./KbdBadge.astro",
+    "./KbdLegend.astro": "./KbdLegend.astro"
+  },
+  "files": ["src", "*.astro"],
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "peerDependencies": {
+    "astro": "^4.0.0 || ^5.0.0"
+  },
+  "peerDependenciesMeta": {
+    "astro": { "optional": true }
+  },
+  "devDependencies": {
+    "jsdom": "^26.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^3.0.0"
+  }
+}
