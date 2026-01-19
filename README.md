@@ -22,10 +22,6 @@ Each package does one thing. No batteries-included monolith. Pick what you need.
 
 Headless where possible. You control the UI.
 
-## Documentation
-
-See the [docs site](https://github.com/joshribakoff/sailkit/tree/docs-website/docs) which dogfoods all implemented packages.
-
 ## License
 
 MIT
